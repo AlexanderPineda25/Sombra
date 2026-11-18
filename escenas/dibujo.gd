@@ -83,3 +83,28 @@ static func gema(ci: CanvasItem, s: String, r: Rect2) -> bool:
 		ci.draw_line(c + Vector2(w * 0.3, w * 0.75), c + Vector2(w * 0.6, w * 1.05), Color(0.6, 1.0, 0.7), 2.0)
 		ci.draw_line(c + Vector2(w * 0.6, w * 1.05), c + Vector2(w * 1.15, w * 0.45), Color(0.6, 1.0, 0.7), 2.0)
 	return true
+
+
+## Siluetas de las fichas jugables. La forma identifica cada tipo sin color.
+static func ficha_juego(ci: CanvasItem, gema: String, centro: Vector2, tam: float) -> void:
+	var perfil := {
+		"R": [Vector2(0, -1), Vector2(0.82, 0), Vector2(0, 1), Vector2(-0.82, 0)],
+		"Z": [Vector2(-0.76, -0.76), Vector2(0.76, -0.76), Vector2(0.76, 0.76), Vector2(-0.76, 0.76)],
+		"E": [Vector2(0, -1), Vector2(0.93, 0.66), Vector2(-0.93, 0.66)],
+		"A": [Vector2(-0.55, -0.79), Vector2(0.55, -0.79), Vector2(0.94, 0), Vector2(0.55, 0.79),
+			Vector2(-0.55, 0.79), Vector2(-0.94, 0)],
+		"F": [Vector2(0, -1), Vector2(0.82, 0), Vector2(0, 1), Vector2(-0.82, 0)],
+	}
+	var forma: Array = perfil[gema]
+	var puntos := PackedVector2Array()
+	for p: Vector2 in forma:
+		puntos.append(centro + p * tam * 0.46)
+	var col: Color = COLOR_GEMA.get(gema, Color(0.55, 0.57, 0.66))
+	ci.draw_colored_polygon(puntos, col.darkened(0.12))
+	ci.draw_colored_polygon(PackedVector2Array([puntos[0], puntos[1], centro, puntos[-1]]), col.lightened(0.26))
+	puntos.append(puntos[0])
+	ci.draw_polyline(puntos, col.lightened(0.48), 2, true)
+	if gema == "F":
+		ci.draw_polyline(PackedVector2Array([centro + Vector2(0, -0.40) * tam,
+				centro + Vector2(-0.12, -0.08) * tam, centro + Vector2(0.13, 0.04) * tam,
+				centro + Vector2(0, 0.40) * tam]), Config.HUD_FONDO, 3, true)

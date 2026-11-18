@@ -24,7 +24,7 @@ Todo el comportamiento del museo está hecho con modelos de la teoría de la com
 
 ## La cadena completa
 
-Robar una joya → los guardias reaccionan a la vista, a los ruidos y a los pasos cercanos con su AFD → el radar avisa (AFD: AVISO) y barre 12 sectores (atraviesa paredes; solo los arbustos ocultan) → la **multicinta** cruza los sensores y la **multipista** analiza el resultado → si acepta, **alerta global por radio**: cada guardia recibe el símbolo `a` y TODOS van al punto exacto donde el radar midió al ladrón; si ya no está, pasan a BUSQUEDA y registran varios lugares alrededor → la **música** sube de capa según el peor estado de los AFD → todo queda en el **registro** de la consola F1.
+Robar una joya → los guardias reaccionan a la vista, a los ruidos y a los pasos cercanos con su AFD → el radar avisa (AFD: AVISO) y barre 12 sectores (el eco atraviesa muros en Difícil) → la **multicinta** cruza los sensores y la **multipista** analiza el resultado → si acepta, **alerta global por radio**: cada guardia recibe el símbolo `a` y TODOS van al punto exacto donde el radar midió al ladrón; si ya no está, pasan a BUSQUEDA y registran varios lugares alrededor → la **música** sube de capa según el peor estado de los AFD → todo queda en el **registro** de la consola F1.
 
 ## El lenguaje SOMBRA
 
@@ -86,43 +86,43 @@ Si exportas el juego, añade `*.sombra` a los filtros de archivos no recurso del
 - **No se puede ocultar con un guardia mirándote**: hay que romper el contacto visual 1 s.
 - Moverse de pie entre las hojas hace un crujido que los guardias cercanos oyen.
 - Un guardia que te persigue muy de cerca, o que registra el arbusto durante una búsqueda, te encuentra igual.
-- El radar atraviesa las paredes: dentro de su alcance solo te salva estar oculto en un arbusto.
+- Los muros frenan el radar en Fácil y Medio. En Difícil el eco los atraviesa y los arbustos ofrecen cobertura dentro de su alcance.
 
 ## Guardias que oyen
 
-- Caminar de pie a menos de 3 casillas de un guardia: te oye, **se voltea al instante** y pasa a SOSPECHA.
-- Corriendo te oye a 5,5 casillas y pasa a ALERTA (va hacia ti).
+- En Fácil, un guardia oye tus pasos de pie hasta a 3 casillas, **se voltea al instante** y pasa a SOSPECHA.
+- En Fácil, corriendo te oye hasta a 5,5 casillas y pasa a ALERTA (va hacia ti).
 - Agachado u oculto no te oye.
 
-## Minijuegos de las terminales (máquinas de Turing)
+## Dificultad
 
-Tres terminales son **retos de habilidad**; la decisión lógica la toma siempre la máquina de Turing real del desafío (`Desafio.ejecutar_intento` / `ejecutar_hasta`, con límite de `MAX_PASOS`). Godot solo gestiona lo físico (tiempo, timing, colisión con el haz) y lo distingue sin ambigüedad:
+Elige **Fácil**, **Medio** o **Difícil** en el menú con **← / →** o con clic. Luego pulsa **Enter** para empezar o **1–3** para entrar al nivel que quieras. También puedes cambiarla en **F1 › Ajustes**. La selección se guarda y se aplica al cargar o reintentar un nivel.
 
-| Tipo de fallo | Causa | Consecuencia |
+| | Fácil | Medio | Difícil |
+|---|---|---|---|
+| Pasos de pie / corriendo | 3 / 5,5 casillas | 3,8 / 6,9 | 4,7 / 8,5 |
+| Cámaras extra por mapa | 0 | 1 | 3 |
+| Radar con ajustes por defecto | 9 casillas · pausa de 22 s | 10 casillas · pausa de 18 s | 11 casillas · pausa de 14 s · atraviesa muros |
+| Vitrina | 4 gemas en el mismo orden | 5 en espejo | 6 en espejo y menos tiempo entre encendidos de la luz |
+| Galería | 5 haces | 6 haces | 7 haces y ventanas sin luz más cortas |
+| Bóveda | 8 joyas, sin reloj | 10 joyas, 5 s para enviar cada una | 12 joyas, 3 s para enviar cada una |
+
+Al subir de dificultad, los guardias también sospechan antes cuando te ven y el radar avisa con menos antelación. La práctica inicial de los minijuegos sigue disponible en los tres modos.
+
+## Minijuegos de las terminales
+
+Acércate a una terminal y pulsa **E**. Cada reto empieza con una demostración animada y una primera acción de práctica. Las fichas se distinguen por su forma y su color.
+
+| Terminal | Qué hacer | Controles |
 |---|---|---|
-| **Físico** | mal timing, haz encendido, rotor atascado, reloj agotado | `Partida.fallo_fisico`: ruido, **no** cuenta como rechazo de la MT |
-| **Lógico** | la MT se detuvo en el estado de rechazo | `fallar_terminal`: pitido, intento lógico, pista gradual |
-| **Técnico** | la MT no se detuvo en `MAX_PASOS` pasos | aviso de error del simulador; no penaliza |
+| Vitrina | Lleva una gema a la vez al hueco del mismo número. Cruza el riel cuando la luz esté apagada. | Clic en la gema y luego en su hueco, o flechas y **Espacio** |
+| Galería láser | Lleva la máscara del mismo color y forma que el haz, o espera a que se apague. | **1–4** para elegir máscara y **→** para cruzar, o clic |
+| Bóveda | Manda cada joya a la bolsa que muestra su figura. Descarta las que estén rajadas. | **←**, **→** y **↓**, o clic en el destino |
 
-Cada minijuego empieza con una indicación breve y un **ensayo sin castigo**. Comunes: **V** ver la máquina, **P** pausa, **T** modo accesible (sin reloj, más lento y más tolerante), **Esc** volver al museo.
+**P** pausa. **T** activa el modo tranquilo, que apaga la luz de la vitrina, alarga la ventana sin láser y reduce la velocidad de la cinta del botín y quita su límite de tiempo. **Esc** vuelve al museo.
 
-- **Cerradura de la vitrina · «El patrón del joyero»** (MT estándar, 1 cinta, 1 cabezal). Dos ejemplos que la propia MT acepta muestran la regla (rueda, rivales, espejo o doble cerrojo). Un disco giratorio por gema de la clave: **← →** elegir disco, **↑ ↓** sentido de giro, **Espacio**/clic fijar cuando la gema está en la ventana verde, **Retroceso** soltar. Al fijar todos se ejecuta `vitrina#clave` en la MT; si rechaza, el disco culpable es el que señala la posición donde se detuvo el cabezal. 3/4/5 gemas según la dificultad.
-- **Rejilla láser · «Cruce sincronizado»** (MT multipista, 1 cinta de 3 pistas, 1 cabezal). Pasillo con un haz por columna que se enciende por ciclos. **← →/A D** moverse, **1-4** o **Q E** máscara, **F/Shift** escáner (3 cargas). Al cruzar con el haz apagado el sensor escribe la máscara en la pista 2 de la columna bajo el cabezal y la MT da **un paso real**; el ladrón siempre está en el refugio de la columna del cabezal. Máscara incorrecta = rechazo lógico y el checkpoint se restaura repitiendo la ejecución real; en la salida la MT termina su programa y se confirma con una ejecución completa.
-- **Puerta de la bóveda · «Sincronía de los tres mecanismos»** (MT multicinta, 3 cintas, 3 cabezales). El sensor A muestra su gema a destellos, el lector K empieza en el extremo derecho (fase `q0` real: `S,S,R`) y retrocede; **Espacio** frena el rotor B en los pasos de giro (R=0, Z=1, E=2, A=3) y **Enter** confirma cuando el anillo de K está en verde. Cada ronda ejecuta la MT desde `q0` hasta comparar esa columna (`R,R,L`); al final, ejecución completa y apertura gradual de la puerta.
+Una máquina de Turing real resuelve cada reto. Un lector recorre toda la vitrina, otro comprueba tres datos juntos en cada haz, y en la bóveda cada bolsa avanza por su cuenta. **V** reproduce el último intento y **F1 › Máquinas de Turing** muestra la ejecución. La central de alarmas usa el panel de edición de cintas.
 
-**Visor técnico (V):** reutiliza el panel de cintas/estados/transiciones con Ejecutar, Paso, Reiniciar y Velocidad sobre una **copia** con la entrada del último intento; repite las mismas transiciones y comprueba que coinciden con las registradas en el juego. Abrirlo o cerrarlo no cambia el desafío. La **central de alarmas** (xⁿyⁿ) sigue usando el panel clásico.
-
-## Terminales con gemas
-
-Todas las terminales usan gemas (Rubí, Zafiro, Esmeralda, Ámbar; teclas 1-4 o clic) y cambian en cada partida:
-
-- **Central de alarmas** (estándar): un código de 6 gemas de la forma xⁿyⁿ con dos gemas sorteadas.
-- **Bóveda** (multicinta): cada gema tuya B indica cuántos pasos girar la gema del sensor A en la rueda; el resultado debe ser la clave K, escrita al revés (el cabezal 3 retrocede mientras 1 y 2 avanzan).
-- **Rejilla láser** (multipista): cada columna (láser, máscara, objetivo) debe ser una escalera en la rueda R→Z→E→A→R.
-
-### Cerradura de la vitrina (acertijo de gemas)
-
-En cada partida la vitrina muestra 3, 4 o 5 gemas al azar (según la dificultad) (Rubí, Zafiro, Esmeralda, Ámbar) y un acertijo: **espejo** (las mismas gemas al revés), **rueda** (cada gema por la siguiente: R→Z→E→A→R), **rivales** (Rubí↔Esmeralda, Zafiro↔Ámbar) o **doble cerrojo** (rueda y al revés). La clave se alinea con los discos del minijuego y una MT estándar la verifica en zigzag: marca una gema de la vitrina, la recuerda en su estado (`lleva_R`, `lleva_Z`...), cruza el `#` y comprueba la gema de la clave.
 
 ## Consola de seguridad (F1)
 
@@ -133,7 +133,7 @@ Ventana nativa (`display/window/subwindows/embed_subwindows=false`), única, red
 - **Radar**: AFD del ciclo, cuenta atrás y las señales P/A/V/O/I por sector.
 - **Registro**: detecciones, monedas, cambios de estado, alarmas, alertas, ejecuciones de MT; con filtros.
 - **Tutoriales**: los tres tutoriales interactivos.
-- **Ajustes**: intervalo, aviso, barrido y alcance del radar, dificultad, volumen e intensidad de la música y volumen de efectos. Se guardan en `user://ajustes.cfg`.
+- **Ajustes**: intervalo base, aviso base, barrido y alcance base del radar, dificultad, volumen e intensidad de la música y volumen de efectos. Se guardan en `user://ajustes.cfg`.
 
 ## Tutoriales interactivos
 
@@ -150,6 +150,8 @@ Todo el audio es original y se sintetiza con `herramientas/generar_audio.py` (pi
 - **Ambiente y pasos**: tono de sala del museo, pasos del ladrón (no suenan agachado) y botas del guardia más cercano, más fuertes cuanto más cerca está.
 - Las operaciones de las máquinas (leer, escribir, mover, aceptar, rechazar) suenan con un tono que sube con la posición del cabezal; el gestor limita repeticiones, polifonía y arranques simultáneos.
 
+Las canciones `musica_nivel1_exploracion.ogg` y `musica_nivel3_persecucion.ogg` están en `assets/audio/`, junto con las capas adaptativas.
+
 ## Efectos visuales
 
 - **Postproceso** (`escenas/postproceso.gdshader`) alimentado por los autómatas: aberración cromática en PERSECUCIÓN, contraste en SOSPECHA/BÚSQUEDA, tinte rojo pulsante en alarma, velo verde y visión de túnel al esconderte, viñeta y grano.
@@ -160,9 +162,9 @@ Todo el audio es original y se sintetiza con `herramientas/generar_audio.py` (pi
 
 | Nivel | Guardias | Seguridad | Terminal |
 |---|---|---|---|
-| 1 · El vestíbulo | 2 | puerta electrónica + radar | MT estándar (acertijo de gemas) |
+| 1 · El vestíbulo | 2 | puerta electrónica + radar | MT estándar (robot de la vitrina) |
 | 2 · La galería | 3 | cámara + rejilla láser + radar | MT multipista |
-| 3 · La bóveda | 5 | 2 cámaras + bóveda + radar | MT multicinta (rueda) + MT estándar xⁿyⁿ |
+| 3 · La bóveda | 5 | 2 cámaras + bóveda + radar | MT multicinta (reparto) + MT estándar xⁿyⁿ |
 
 ## Estructura
 
@@ -199,14 +201,14 @@ sombra_godot/
 ## Pruebas
 
 ```bash
-godot --headless --path . -s res://pruebas/pruebas_turing.gd   # 23 pruebas de las máquinas de Turing
-godot --headless --path . -s res://pruebas/pruebas.gd          # 45 pruebas del juego, autómatas, radar, audio y tutoriales
+godot --headless --path . -s res://pruebas/pruebas_turing.gd   # 25 pruebas de las máquinas de Turing
+godot --headless --path . -s res://pruebas/pruebas.gd          # 47 pruebas del juego, autómatas, radar, audio y tutoriales
 godot --headless --path . -s res://pruebas/pruebas_lenguaje.gd # 18 pruebas del lenguaje SOMBRA
-godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd # 23 pruebas de los minijuegos de MT y de la música
+godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd # 15 pruebas de los minijuegos de MT y de la música
 godot --headless --path . -s res://pruebas/experimento.gd      # experimento de los regresos
 ```
 
-Las del lenguaje comprueban que el AFD de subconjuntos y el AFD mínimo dan el mismo token que la simulación directa del AFN en las 7 381 cadenas de hasta 4 caracteres de un alfabeto representativo, el prefijo más largo, las posiciones línea:columna, los mensajes y la recuperación de errores sintácticos, cada regla semántica y que los guardias interpretan sus pausas. Las pruebas de Turing son exhaustivas (incluidos el correlador y el analizador del radar con todas las entradas de hasta 4 y 3 bits). Las del juego comprueban, entre otras cosas: que el radar detecta al ladrón aunque esté detrás de un muro y no al oculto, fuera de alcance o a un guardia; que la alerta manda a todos al punto medido y luego registran el área; que los guardias oyen pasos y se voltean; que la batería limita el correr; que el verificador de gemas acepta exactamente una clave entre todas las de 3 a 5 gemas para cada acertijo; que la música sigue a los AFD con fundidos graduales; que 200 operaciones simultáneas no saturan el audio; y que cada ejercicio de los tutoriales coincide con lo que hace la máquina real.
+Las del lenguaje comprueban que el AFD de subconjuntos y el AFD mínimo dan el mismo token que la simulación directa del AFN en las 7 381 cadenas de hasta 4 caracteres de un alfabeto representativo, el prefijo más largo, las posiciones línea:columna, los mensajes y la recuperación de errores sintácticos, cada regla semántica y que los guardias interpretan sus pausas. Las pruebas de Turing son exhaustivas (incluidos el correlador y el analizador del radar con todas las entradas de hasta 4 y 3 bits). Las del juego comprueban, entre otras cosas: que el radar atraviesa muros solo en Difícil y respeta los arbustos y su alcance en los tres modos; que la alerta manda a todos al punto medido y luego registran el área; que los guardias oyen pasos y se voltean; que la batería limita el correr; que el verificador de gemas acepta la clave asignada; que la música sigue a los AFD con fundidos graduales; que 200 operaciones simultáneas no saturan el audio; y que cada ejercicio de los tutoriales coincide con lo que hace la máquina real.
 
 ## Regenerar el arte y el audio
 

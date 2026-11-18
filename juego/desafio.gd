@@ -6,6 +6,7 @@ class_name Desafio
 extends RefCounted
 
 var id: String
+var dificultad: int
 var titulo: String
 var variante: String          ## "estandar" | "multicinta" | "multipista"
 var efecto: String            ## "puerta" | "camaras" | "laser"
@@ -18,7 +19,6 @@ var intentos := 0
 var resuelto := false
 var solucion_filas: Array = []  ## la entrada que resuelve el desafío (pruebas y terminal resuelta)
 # Cerradura de gemas (acertijo generado al azar en cada partida)
-var acertijo := ""            ## "espejo" | "rueda" | "opuestas" | "espejo_rueda"
 var regla := {}               ## gema de la vitrina -> gema de la clave
 var invertir := false
 var gema_x := ""              ## central de alarmas: L = { xⁿ yⁿ }
@@ -51,19 +51,11 @@ const ACERTIJOS := {
 }
 
 
-## Número de gemas de la cerradura según la dificultad (fácil 3, normal 4, difícil 5).
-static func largo_cerradura() -> int:
-	if Ajustes.dificultad < 0.8:
-		return 3
-	if Ajustes.dificultad > 1.2:
-		return 5
-	return 4
-
-
 ## `semilla` < 0 elige un acertijo al azar (cada partida es distinta).
-static func crear(p_id: String, semilla := -1) -> Desafio:
+static func crear(p_id: String, semilla := -1, modo: int = Ajustes.dificultad) -> Desafio:
 	var d := Desafio.new()
 	d.id = p_id
+	d.dificultad = modo
 	var rng := RandomNumberGenerator.new()
 	if semilla >= 0:
 		rng.seed = semilla
@@ -73,54 +65,23 @@ static func crear(p_id: String, semilla := -1) -> Desafio:
 	var teclas := {"1": "R", "2": "Z", "3": "E", "4": "A"}
 	match p_id:
 		"cerradura":
-			var tipos := ACERTIJOS.keys()
-			d.acertijo = tipos[rng.randi() % tipos.size()]
-			var datos: Array = ACERTIJOS[d.acertijo]
-			d.regla = datos[0]
-			d.invertir = datos[1]
-			var n_gemas := largo_cerradura()
+			d.regla = IDENTIDAD
+			d.invertir = modo >= Ajustes.Modo.MEDIO
 			var vitrina := ""
-			while vitrina == "" or (d.invertir and d.regla == IDENTIDAD and vitrina == vitrina.reverse()):
-				vitrina = ""
-				for i in n_gemas:
-					vitrina += ProgramasTuring.GEMAS[rng.randi() % 4]
-			# dos ejemplos de la regla para la fase de observación: cada uno es
-			# una palabra que el verificador ACEPTA (se comprueba con la MT)
-			var verificador := ProgramasTuring.verificador_clave(d.regla, d.invertir)
-			var intentos_ej := 0
-			while d.ejemplos.size() < 2 and intentos_ej < 200:
-				intentos_ej += 1
-				var p := ""
-				for i in 3:
-					p += ProgramasTuring.GEMAS[rng.randi() % 4]
-				if p == vitrina.substr(0, 3) or (d.ejemplos.size() == 1 and d.ejemplos[0][0] == p):
-					continue
-				if d.invertir and d.regla == IDENTIDAD and p == p.reverse():
-					continue                     # un palíndromo no deja ver el espejo
-				var k := ""
-				for g in p:
-					k += d.regla[g]
-				if d.invertir:
-					k = k.reverse()
-				verificador.cargar(p + "#" + k)
-				if verificador.ejecutar(MAX_PASOS) == "ACEPTA":
-					d.ejemplos.append([p, k])
-			d.titulo = "Cerradura de la vitrina"
+			var n := 4 + modo
+			for i in n:
+				vitrina += G[rng.randi_range(0, G.size() - 1)]
+			if d.invertir and vitrina == vitrina.reverse():
+				vitrina[n - 1] = G[(G.find(vitrina[0]) + 1) % G.size()]
+			var clave := vitrina.reverse() if d.invertir else vitrina
+			d.titulo = "El robot de la vitrina"
 			d.variante = "estandar"
 			d.efecto = "puerta"
-			d.objetivo = datos[2]
-			d.leccion = "Máquina estándar: UNA cinta y UN cabezal. Va en zigzag: marca una gema de la vitrina (minúscula), la recuerda en su ESTADO, cruza el # y comprueba la gema de la clave. Así compara dos secuencias con una sola cinta."
-			d.pista_ayuda = datos[3]
-			var clave := ""
-			for g in vitrina:
-				clave += d.regla[g]
-			if d.invertir:
-				clave = clave.reverse()
-			# la clave inicial siempre es incorrecta: la primera gema está girada
-			var inicial: String = RUEDA[clave[0]] + clave.substr(1)
-			d.filas = [{"nombre": "Vitrina # Clave", "contenido": vitrina + "#" + inicial, "editable": true,
-					"editable_desde": 5, "simbolos": ProgramasTuring.GEMAS.duplicate(),
-					"teclas": {"1": "R", "2": "Z", "3": "E", "4": "A"}}]
+			d.objetivo = "Lleva cada gema al hueco del mismo número."
+			d.leccion = "Un solo lector va y vuelve por el riel. Su estado guarda qué gema está comprobando."
+			d.pista_ayuda = "Los números iguales hacen pareja."
+			d.filas = [{"nombre": "Vitrina # Cerradura", "contenido": vitrina + "#" + "?".repeat(n),
+					"editable": true, "editable_desde": n + 1, "simbolos": G.duplicate(), "teclas": teclas}]
 			d.solucion_filas = [vitrina + "#" + clave]
 		"alarma":
 			# dos gemas distintas al azar: el código debe ser xxx yyy
@@ -147,60 +108,54 @@ static func crear(p_id: String, semilla := -1) -> Desafio:
 					"teclas": teclas}]
 			d.solucion_filas = [sol]
 		"boveda":
-			var a := ""
-			var b := ""
-			for i in 4:
-				a += G[rng.randi() % 4]
-				b += G[rng.randi() % 4]
-			var k := ""
-			for i in 4:
-				k += ProgramasTuring.siguiente_gema(a[i], G.find(b[i]))
-			k = k.reverse()
-			var inicial_b := b
-			while inicial_b == b:
-				inicial_b = ""
-				for i in 4:
-					inicial_b += G[rng.randi() % 4]
-			d.titulo = "Puerta de la bóveda"
+			var entrada := ""
+			var sol := ""
+			var bolsa_a := ""
+			var bolsa_b := ""
+			var extras := rng.randi_range(0, G.size() - 1)
+			var lote := ["R", "A", "Z", "F", "E", "R", G[extras], "F"]
+			for i in modo:
+				lote.append_array([G[rng.randi_range(0, G.size() - 1)], "F"])
+			for i in lote.size():
+				var j := rng.randi_range(i, lote.size() - 1)
+				var g: String = lote[j]
+				lote[j] = lote[i]
+				lote[i] = g
+				var destino := ProgramasTuring.destino_botin(g)
+				entrada += g + "_"
+				sol += g + destino
+				if destino == "<":
+					bolsa_a += g
+				elif destino == ">":
+					bolsa_b += g
+			d.titulo = "Reparto del botín"
 			d.variante = "multicinta"
 			d.efecto = "puerta"
-			d.objetivo = "Rueda R→Z→E→A. Cada gema tuya (B) dice cuántos pasos girar la gema del sensor (A): Rubí 0, Zafiro 1, Esmeralda 2, Ámbar 3. El resultado debe ser la clave K… que está escrita AL REVÉS."
-			d.leccion = "Máquina multicinta: TRES cintas y TRES cabezales independientes. Primero solo el cabezal 3 va al final (S, S, R); después los cabezales 1 y 2 avanzan a la derecha mientras el 3 retrocede (R, R, L). Una multipista no podría hacerlo: su único cabezal mueve todas las pistas juntas."
-			d.pista_ayuda = "Compara la PRIMERA gema de A con la ÚLTIMA de K: ¿cuántos pasos hay en la rueda de una a otra?"
+			d.objetivo = "Clasifica las joyas por su forma. Descarta las que estén rajadas."
+			d.leccion = "Cada bolsa tiene su propio lector. Avanza únicamente la bolsa que recibe una joya."
+			d.pista_ayuda = "Busca la misma figura en una de las bolsas."
 			d.filas = [
-				{"nombre": "Cinta 1 · A (sensor)", "contenido": a, "editable": false, "simbolos": []},
-				{"nombre": "Cinta 2 · B (tú)", "contenido": inicial_b, "editable": true, "simbolos": G.duplicate(),
-						"teclas": teclas},
-				{"nombre": "Cinta 3 · K (al revés)", "contenido": k, "editable": false, "simbolos": []},
+				{"nombre": "Botín y destino", "contenido": entrada, "editable": false, "simbolos": []},
+				{"nombre": "Bolsa izquierda", "contenido": "", "editable": false, "simbolos": []},
+				{"nombre": "Bolsa derecha", "contenido": "", "editable": false, "simbolos": []},
 			]
-			d.solucion_filas = [a, b, k]
+			d.solucion_filas = [sol, bolsa_a, bolsa_b]
 		"laser":
-			var l := ""
-			var m := ""
-			var o := ""
-			for i in 5:
-				var g: String = G[rng.randi() % 4]
-				l += g
-				m += ProgramasTuring.siguiente_gema(g)
-				o += ProgramasTuring.siguiente_gema(g, 2)
-			var inicial_m := m
-			while inicial_m == m:
-				inicial_m = ""
-				for i in 5:
-					inicial_m += G[rng.randi() % 4]
-			d.titulo = "Rejilla láser"
+			var haces := ""
+			for i in 5 + modo:
+				haces += G[rng.randi_range(0, G.size() - 1)]
+			d.titulo = "Cruce de la galería"
 			d.variante = "multipista"
 			d.efecto = "laser"
-			d.objetivo = "Cada columna debe formar una ESCALERA en la rueda R→Z→E→A→R: láser, máscara y objetivo seguidos, de arriba abajo. Escribe la máscara en la pista 2."
-			d.leccion = "Máquina multipista: UNA sola cinta con TRES pistas. Cada casilla guarda una tupla (láser, máscara, objetivo) y el único cabezal la lee completa; todas las pistas se mueven juntas."
-			d.pista_ayuda = "La máscara es la gema que sigue al láser en la rueda… y justo la anterior al objetivo."
+			d.objetivo = "Usa la máscara del mismo color o cruza cuando el haz se apague."
+			d.leccion = "Un lector comprueba al mismo tiempo el haz, tu máscara y si había luz."
+			d.pista_ayuda = "La figura del haz también aparece en su máscara."
 			d.filas = [
-				{"nombre": "Pista 1 · láser", "contenido": l, "editable": false, "simbolos": []},
-				{"nombre": "Pista 2 · máscara (tú)", "contenido": inicial_m, "editable": true, "simbolos": G.duplicate(),
-						"teclas": teclas},
-				{"nombre": "Pista 3 · objetivo", "contenido": o, "editable": false, "simbolos": []},
+				{"nombre": "Haz", "contenido": haces, "editable": false, "simbolos": []},
+				{"nombre": "Máscara", "contenido": "_".repeat(haces.length()), "editable": false, "simbolos": []},
+				{"nombre": "Encendido al cruzar", "contenido": "_".repeat(haces.length()), "editable": false, "simbolos": []},
 			]
-			d.solucion_filas = [l, m, o]
+			d.solucion_filas = [haces, haces, "1".repeat(haces.length())]
 	d.construir()
 	return d
 
@@ -213,9 +168,9 @@ func construir() -> MaquinaTuring:
 		"alarma":
 			maquina = ProgramasTuring.equilibrio_gemas(gema_x, gema_y)
 		"boveda":
-			maquina = ProgramasTuring.rueda_multicinta()
+			maquina = ProgramasTuring.reparto_multicinta()
 		"laser":
-			maquina = ProgramasTuring.escalera_multipista()
+			maquina = ProgramasTuring.cruce_multipista()
 	var contenidos := []
 	for f in filas:
 		contenidos.append(f["contenido"])
@@ -268,9 +223,9 @@ func comprobar() -> Dictionary:
 		"alarma":
 			msg = "La máquina %s la palabra." % ("ACEPTÓ" if acepto else "RECHAZÓ")
 		"boveda":
-			msg = "A girada según B %s K." % ("coincide con" if acepto else "no coincide con")
+			msg = "El botín quedó clasificado." if acepto else "Revisa el destino de la joya."
 		"laser":
-			msg = "La máscara %s la escalera." % ("completa" if acepto else "no completa")
+			msg = "Todos los haces quedaron atrás." if acepto else "El haz detectó una máscara distinta."
 	return {"exito": exito, "mensaje": msg}
 
 
@@ -311,13 +266,14 @@ func registrar_intento(contenidos: Array, trans: Array, res: String) -> void:
 func copia_para_visor(contenidos: Array) -> Desafio:
 	var c := Desafio.new()
 	c.id = id
+	c.dificultad = dificultad
 	c.titulo = titulo
 	c.variante = variante
 	c.efecto = efecto
 	c.objetivo = objetivo
 	c.leccion = leccion
 	c.pista_ayuda = pista_ayuda
-	c.acertijo = acertijo
+
 	c.regla = regla
 	c.invertir = invertir
 	c.gema_x = gema_x

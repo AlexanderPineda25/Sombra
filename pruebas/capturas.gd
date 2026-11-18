@@ -91,11 +91,24 @@ func pasos(n: int) -> void:
 	juego.terminal_ui._sincronizar_cabezales(true)
 
 
+func resolver_vitrina(mj: MJCerradura) -> void:
+	mj.comenzar()
+	var n := mj.vitrina.length()
+	for i in n:
+		mj.destino = i
+		mj.x = mj.posicion(i)
+		mj.interactuar()
+		mj.destino = n + 1 + mj._hueco(i)
+		mj.x = mj.posicion(mj.destino)
+		mj.interactuar()
+	mj.avanzar_lectura(Desafio.MAX_PASOS)
+
+
 func _guion() -> void:
 	avanzar(3)
 	await guardar("01_menu.png")
 
-	# ---- nivel 1: máquina estándar (incrementador) --------------------- #
+	# ---- nivel 1: máquina estándar (vitrina) --------------------- #
 	juego.disparar("enter")
 	avanzar(1.0)
 	mover_a(Vector2i(15, 14))
@@ -103,14 +116,14 @@ func _guion() -> void:
 	await guardar("02_nivel1_terminal.png")
 
 	abrir_terminal(0)
-	var d: Desafio = juego.partida.terminales[0]["desafio"]
-	for i in 4:
-		d.poner(0, 5 + i, d.solucion_filas[0][5 + i])
-	juego.terminal_ui._reiniciar()
+	var robot := juego.minijuego_abierto() as MJCerradura
+	resolver_vitrina(robot)
+	robot.abrir_visor()
 	pasos(13)
 	await guardar("03_turing_estandar.png", 8)
 	pasos(300)
 	await guardar("04_turing_estandar_exito.png", 8)
+	juego.terminal_ui._salir()
 	juego.cerrar_terminal()
 	avanzar(0.5)
 	mover_a(Vector2i(13, 12))
@@ -138,25 +151,21 @@ func _guion() -> void:
 	avanzar(0.4)
 	await guardar("07_nivel2_laser.png")
 	abrir_terminal(0)
-	d = juego.partida.terminales[0]["desafio"]
-	for i in 5:
-		d.poner(1, i, d.solucion_filas[1][i])
-	juego.terminal_ui._reiniciar()
+	var laser := juego.minijuego_abierto() as MJLaser
+	laser.comenzar()
+	for i in 3:
+		laser.mascara = laser.haces[i]
+		laser.cruzar()
+	laser.abrir_visor()
 	pasos(3)
 	await guardar("08_turing_multipista.png", 8)
-	juego.cerrar_terminal()
-
-	# intento fallido en la multipista
-	juego.cargar(1)
-	juego.flujo.actual = Def.JUGANDO
-	abrir_terminal(0)
-	d = juego.partida.terminales[0]["desafio"]
-	for i in 5:
-		d.poner(1, i, d.solucion_filas[1][i])
-	d.poner(1, 3, ProgramasTuring.siguiente_gema(d.solucion_filas[1][3]))   # un error
-	juego.terminal_ui._reiniciar()
+	juego.terminal_ui._salir()
+	laser.mascara = ProgramasTuring.siguiente_gema(laser.haces[3])
+	laser.cruzar()
+	laser.abrir_visor()
 	pasos(12)
 	await guardar("09_turing_denegado.png", 8)
+	juego.terminal_ui._salir()
 	juego.cerrar_terminal()
 
 	# ---- nivel 3: máquina multicinta (bóveda) ---------------------------- #
@@ -165,17 +174,20 @@ func _guion() -> void:
 	avanzar(2.0)
 	await guardar("10_nivel3.png")
 	abrir_terminal(0)
-	d = juego.partida.terminales[0]["desafio"]
-	for i in 4:
-		d.poner(1, i, d.solucion_filas[1][i])
-	juego.terminal_ui._reiniciar()
+	var boveda := juego.minijuego_abierto() as MJBoveda
+	boveda.comenzar()
+	for i in boveda.cantidad:
+		boveda.enviar(ProgramasTuring.destino_botin(boveda.gema_actual()))
+		boveda._actualizar(0.3)
+	boveda.abrir_visor()
 	pasos(6)
 	await guardar("11_turing_multicinta.png", 8)
 	pasos(20)
 	await guardar("12_turing_multicinta_exito.png", 8)
+	juego.terminal_ui._salir()
 	juego.cerrar_terminal()
 	abrir_terminal(1)
-	d = juego.partida.terminales[1]["desafio"]
+	var d: Desafio = juego.partida.terminales[1]["desafio"]
 	for i in 6:
 		d.poner(0, i, d.solucion_filas[0][i])
 	juego.terminal_ui._reiniciar()
@@ -233,11 +245,7 @@ func _guion() -> void:
 
 	# terminal estándar resuelta para que la consola la muestre
 	abrir_terminal(0)
-	var d0: Desafio = p.terminales[0]["desafio"]
-	for i in 4:
-		d0.poner(0, 5 + i, d0.solucion_filas[0][5 + i])
-	juego.terminal_ui._reiniciar()
-	pasos(300)
+	resolver_vitrina(juego.minijuego_abierto() as MJCerradura)
 	juego.cerrar_terminal()
 	p.guardias[0].evento("r")
 	avanzar(0.5)

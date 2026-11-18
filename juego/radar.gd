@@ -3,18 +3,20 @@
 ## Su ciclo es un AFD (REPOSO -> AVISO -> BARRIDO -> ANALISIS -> REPOSO).
 ## Durante el BARRIDO gira 360° y registra, por cada sector, cuatro señales:
 ##   P presencia · A transpondedor autorizado · V eco recibido · O oculto
-## (el radar atraviesa las paredes: todo lo que está en su alcance da eco)
+## (en Difícil el eco atraviesa paredes)
 ## En el ANALISIS las procesa con dos máquinas de Turing:
 ##   1. Multicinta (correlador): cruza P con A sector a sector -> intrusos I.
 ##   2. Multipista (analizador): busca una columna (I=1, V=1, O=0).
 ## Si la multipista ACEPTA hay intrusión: el radar dispara una alerta global
 ## con la posición medida y todos los guardias acuden a ese punto.
-## Las paredes NO detienen el radar; solo los arbustos ocultan al ladrón.
+## Los arbustos ocultan al ladrón en todos los modos.
 class_name Radar
 extends RefCounted
 
 const SECTORES := 12
 
+var dificultad: int
+var atraviesa_paredes: bool
 var tile: Vector2i
 var pos: Vector2
 var mapa: Mapa
@@ -36,7 +38,9 @@ var escaneos := 0
 var ultima_transicion: Array = []  ## [símbolo, origen, destino] (para la consola)
 
 
-func _init(p_tile: Vector2i, p_mapa: Mapa, desfase := 0.0) -> void:
+func _init(p_tile: Vector2i, p_mapa: Mapa, desfase := 0.0, modo := Ajustes.Modo.FACIL) -> void:
+	dificultad = modo
+	atraviesa_paredes = modo == Ajustes.Modo.DIFICIL
 	tile = p_tile
 	mapa = p_mapa
 	pos = Mapa.centro(tile)
@@ -50,11 +54,21 @@ func estado() -> String:
 
 
 func alcance() -> float:
-	return Ajustes.radar_alcance * Config.TILE
+	return (Ajustes.radar_alcance + dificultad) * Config.TILE
 
 
 func intervalo() -> float:
-	return Ajustes.radar_intervalo / Ajustes.dificultad
+	return Ajustes.radar_intervalo * Ajustes.RADAR_INTERVALO[dificultad]
+
+
+func duracion_aviso() -> float:
+	return Ajustes.radar_aviso * Ajustes.RADAR_AVISO[dificultad]
+
+
+func extremo_barrido(direccion: float) -> Vector2:
+	if atraviesa_paredes:
+		return pos + Vector2.from_angle(direccion) * alcance()
+	return mapa.rayo(pos, direccion, alcance())
 
 
 func tiempo_restante() -> float:
@@ -62,7 +76,7 @@ func tiempo_restante() -> float:
 		Def.REPOSO:
 			return intervalo() - t_fase
 		Def.AVISO:
-			return Ajustes.radar_aviso - t_fase
+			return duracion_aviso() - t_fase
 	return 0.0
 
 
@@ -88,13 +102,13 @@ func observar(s: int, j: Jugador, guardias: Array) -> void:
 	if jugador_en:
 		obs_p[s] = 1
 		obs_a[s] = 0                         # el ladrón no lleva transpondedor
-		obs_v[s] = 1                         # el eco atraviesa las paredes
+		obs_v[s] = 1 if atraviesa_paredes or mapa.linea_libre(pos, j.pos) else 0
 		obs_o[s] = 1 if j.oculto else 0
 		distancia_sector[s] = pos.distance_to(j.pos)
 		posicion_sector[s] = j.pos
 		return
 	for g in guardias:
-		if _en_sector(g.pos, s):
+		if _en_sector(g.pos, s) and (atraviesa_paredes or mapa.linea_libre(pos, g.pos)):
 			obs_p[s] = 1
 			obs_a[s] = 1
 			obs_v[s] = 1
@@ -115,7 +129,7 @@ func actualizar(dt: float, j: Jugador, guardias: Array) -> Dictionary:
 				t_fase = 0.0
 				return {"tipo": "aviso"}
 		Def.AVISO:
-			if t_fase >= Ajustes.radar_aviso:
+			if t_fase >= duracion_aviso():
 				_paso("t")
 				t_fase = 0.0
 				angulo = 0.0

@@ -24,6 +24,7 @@ var juego
 var pestanas: TabContainer
 var vista_afd: VistaAFD
 var vista_radar: VistaRadar
+var selector_dificultad: OptionButton
 var vista_lenguaje: VistaLenguaje
 var vistas_mt := {}               ## variante -> VistaMT
 var textos_mt := {}               ## variante -> RichTextLabel (últimas operaciones)
@@ -161,6 +162,8 @@ func _process(dt: float) -> void:
 	if not visible:
 		return
 	_enlazar()
+	if selector_dificultad.selected != Ajustes.dificultad:
+		selector_dificultad.select(Ajustes.dificultad)
 	_t_refresco -= dt
 	if _t_refresco > 0.0:
 		return
@@ -322,7 +325,18 @@ func _crear_ajustes() -> Control:
 	_deslizador(g, "Aviso previo al escaneo", "radar_aviso", 1, 5, 0.5, " s")
 	_deslizador(g, "Duración del barrido", "radar_barrido", 1.5, 6, 0.5, " s")
 	_deslizador(g, "Alcance del radar", "radar_alcance", 5, 14, 1, " casillas")
-	_deslizador(g, "Dificultad de la vigilancia", "dificultad", 0.6, 1.5, 0.1, "×")
+	var dificultad_label := Label.new()
+	dificultad_label.text = "Dificultad"
+	g.add_child(dificultad_label)
+	selector_dificultad = OptionButton.new()
+	for nombre in Ajustes.MODOS:
+		selector_dificultad.add_item(nombre)
+	selector_dificultad.select(Ajustes.dificultad)
+	selector_dificultad.item_selected.connect(Ajustes.elegir_dificultad)
+	g.add_child(selector_dificultad)
+	var aplicacion := Label.new()
+	aplicacion.text = "Al cargar un nivel"
+	g.add_child(aplicacion)
 	_deslizador(g, "Volumen de la música", "musica_volumen", 0, 1, 0.05, "")
 	_deslizador(g, "Intensidad de la música adaptativa", "musica_intensidad", 0, 1.5, 0.1, "×")
 	_deslizador(g, "Volumen de los efectos", "efectos_volumen", 0, 1, 0.05, "")

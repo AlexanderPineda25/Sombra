@@ -41,12 +41,13 @@ func _draw() -> void:
 		Def.REPOSO:
 			info = "Próximo escaneo en %.1f s" % maxf(0.0, r.tiempo_restante())
 		Def.AVISO:
-			info = "¡Escaneo en %.1f s! Escóndete en un arbusto (las paredes no protegen)." % maxf(0.0, r.tiempo_restante())
+			info = "¡Escaneo en %.1f s! %s" % [maxf(0.0, r.tiempo_restante()),
+					"El eco atraviesa muros" if r.atraviesa_paredes else "Usa un muro o un arbusto de cobertura"]
 		_:
 			info = "Barriendo… sector %d de %d" % [clampi(r.sector_actual + 1, 0, Radar.SECTORES), Radar.SECTORES]
 	Dibujo.texto(self, info, Vector2(14, y + 54), 14, T.AMBAR, false, true, false)
 	Dibujo.texto(self, "Intervalo %.0f s · aviso %.1f s · barrido %.1f s · alcance %.0f casillas" % [r.intervalo(),
-			Ajustes.radar_aviso, Ajustes.radar_barrido, Ajustes.radar_alcance], Vector2(14, y + 78), 12, T.SUAVE,
+			r.duracion_aviso(), Ajustes.radar_barrido, r.alcance() / Config.TILE], Vector2(14, y + 78), 12, T.SUAVE,
 			false, false, false)
 	var res := r.ultimo_resultado if r.ultimo_resultado != "" else "—"
 	Dibujo.texto(self, "Escaneos: %d · último resultado: %s" % [r.escaneos, res], Vector2(14, y + 98), 13,

@@ -26,6 +26,7 @@ var nombre: String
 var mapa: Mapa
 var jugador: Jugador
 var guardias: Array = []
+var dificultad: int
 var camaras: Array = []
 var joyas: Array = []
 var total_joyas := 0
@@ -53,7 +54,8 @@ var energia := Energia.new()     ## batería para correr (máquina de Turing est
 var maquinas := {}
 
 
-func _init(p_indice: int, p_demo := false) -> void:
+func _init(p_indice: int, p_demo := false, modo: int = Ajustes.dificultad) -> void:
+	dificultad = clampi(modo, Ajustes.Modo.FACIL, Ajustes.Modo.DIFICIL)
 	var datos: Dictionary = Niveles.datos(p_indice)
 	indice = p_indice
 	nombre = datos["nombre"]
@@ -61,17 +63,20 @@ func _init(p_indice: int, p_demo := false) -> void:
 	jugador = Jugador.new(mapa.inicio)
 	var rutas: Array = datos["guardias"]
 	for i in rutas.size():
-		var g := Guardia.new(i, rutas[i], mapa)
+		var g := Guardia.new(i, rutas[i], mapa, dificultad)
 		g.seguridad = seguridad
 		guardias.append(g)
 	for c in datos["camaras"]:
 		camaras.append(Camara.new(c[0], c[1], mapa))
+	for c in Niveles.CAMARAS_REFUERZO[indice].slice(0, Ajustes.CAMARAS_EXTRA[dificultad]):
+		if mapa.es_pared(c[0]) and not camaras.any(func(camara: Camara): return camara.tile == c[0]):
+			camaras.append(Camara.new(c[0], c[1], mapa))
 	for t in datos.get("terminales", []):
-		terminales.append({"pos": t[0], "desafio": Desafio.crear(t[1])})
+		terminales.append({"pos": t[0], "desafio": Desafio.crear(t[1], -1, dificultad)})
 	var rads: Array = datos.get("radares", [])
 	for i in rads.size():
 		# el primer escaneo llega antes, para que el jugador conozca el radar pronto
-		radares.append(Radar.new(rads[i], mapa, -Ajustes.radar_intervalo * 0.4 + i * 3.0))
+		radares.append(Radar.new(rads[i], mapa, -Ajustes.radar_intervalo * 0.4 + i * 3.0, dificultad))
 	laser_activo = not mapa.laseres.is_empty()
 	joyas = mapa.joyas.duplicate()
 	total_joyas = joyas.size()
@@ -204,7 +209,7 @@ func actualizar(dt: float, dir := Vector2.ZERO, correr := false, agachar := fals
 					seguridad.registrar("oculto", "El ladrón salió del arbusto.")
 					efectos.append({"tipo": "sale", "pos": j.pos})
 				"crujido":
-					ruido(j.tile(), Config.RUIDO_CRUJIDO, Color(0.5, 1.0, 0.6))
+					ruido(j.tile(), Config.RUIDO_CRUJIDO * Ajustes.RUIDO_PASOS[dificultad], Color(0.5, 1.0, 0.6))
 					efectos.append({"tipo": "crujido", "pos": j.pos})
 
 	# correr hace ruido
@@ -212,7 +217,7 @@ func actualizar(dt: float, dir := Vector2.ZERO, correr := false, agachar := fals
 		t_ruido += dt
 		if t_ruido >= Config.INTERVALO_RUIDO_CORRER:
 			t_ruido = 0.0
-			ruido(j.tile(), Config.RUIDO_CORRER, Color(0.78, 0.78, 1.0))
+			ruido(j.tile(), Config.RUIDO_CORRER * Ajustes.RUIDO_PASOS[dificultad], Color(0.78, 0.78, 1.0))
 	else:
 		t_ruido = Config.INTERVALO_RUIDO_CORRER * 0.6
 
@@ -285,7 +290,7 @@ func _actualizar_radar(r: Radar, dt: float) -> void:
 	match res["tipo"]:
 		"aviso":
 			seguridad.registrar("radar", "Radar (%d, %d): AFD REPOSO -t-> AVISO. Escaneo en %.1f s." % [r.tile.x,
-					r.tile.y, Ajustes.radar_aviso], {"pos": r.pos})
+					r.tile.y, r.duracion_aviso()], {"pos": r.pos})
 			efectos.append({"tipo": "radar_aviso", "pos": r.pos})
 		"barrido":
 			seguridad.registrar("radar", "Radar: AVISO -t-> BARRIDO. Registrando %d sectores." % Radar.SECTORES,

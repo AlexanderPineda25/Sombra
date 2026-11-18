@@ -296,8 +296,8 @@ static func verificador_clave(regla: Dictionary, invertir: bool) -> MTEstandar:
 	var cinta := GEMAS.duplicate()
 	for g in GEMAS:
 		cinta.append(minus[g])
-	alfabeto.append("#")
-	cinta.append_array(["#", "_"])
+	alfabeto.append_array(["#", "?"])
+	cinta.append_array(["#", "?", "_"])
 	var m := MTEstandar.new("Verificador de la clave de gemas", estados, alfabeto, cinta, d, "q0", "qa", "qr")
 	m.usa_gemas = true
 	m.explicacion_estados = {
@@ -422,3 +422,61 @@ static func escalera_multipista() -> MTMultipista:
 		"qr": "RECHAZA: en esta columna la máscara no forma la escalera.",
 	}
 	return maq
+
+
+## Un lector comprueba el haz, la máscara y si estaba encendido al cruzar.
+static func cruce_multipista() -> MTMultipista:
+	var d := {"q0|_,_,_": ["qa", ["_", "_", "_"], "S"]}
+	for haz in GEMAS:
+		for mascara in GEMAS:
+			d["q0|%s,%s,0" % [haz, mascara]] = ["q0", [haz, mascara, "*"], "R"]
+			if haz == mascara:
+				d["q0|%s,%s,1" % [haz, mascara]] = ["q0", [haz, mascara, "*"], "R"]
+	var entrada := GEMAS + ["0", "1"]
+	var m := MTMultipista.new("Cruce de colores", 3, ["q0", "qa", "qr"],
+			entrada, entrada + ["_", "*"], d, "q0", "qa", "qr")
+	m.usa_gemas = true
+	m.explicacion_estados = {
+		"q0": "Lee los tres datos del tramo. Si el haz está apagado o coincide con la máscara, avanza.",
+		"qa": "Se cruzaron todos los haces.",
+		"qr": "El haz estaba encendido y la máscara no coincidía, o falta un dato.",
+	}
+	return m
+
+
+## Los pares gema/destino de la primera cinta conservan incluso los descartes.
+## Una bolsa puede tener una próxima gema ya escrita al reproducir el intento.
+## Solo se comprueba y se mueve la bolsa elegida para la gema actual.
+static func reparto_multicinta() -> MTMulticinta:
+	var d := {"q0|_,_,_": ["qa", ["_", "_", "_"], ["S", "S", "S"]]}
+	var simbolos := GEMAS + ["F", "_"]
+	var estados := ["q0", "qa", "qr"]
+	for g in GEMAS + ["F"]:
+		var q: String = "lleva_" + g
+		estados.append(q)
+		var destino := destino_botin(g)
+		for a in simbolos:
+			for b in simbolos:
+				d["q0|%s,%s,%s" % [g, a, b]] = [q, [g, a, b], ["R", "S", "S"]]
+				if (destino == "<" and a != g) or (destino == ">" and b != g):
+					continue
+				d["%s|%s,%s,%s" % [q, destino, a, b]] = ["q0", [destino, a, b],
+						["R", "R" if destino == "<" else "S", "R" if destino == ">" else "S"]]
+	var entrada := GEMAS + ["F", "<", ">", "v"]
+	var m := MTMulticinta.new("Reparto del botín", 3, estados,
+			entrada, entrada + ["_"], d, "q0", "qa", "qr")
+	m.usa_gemas = true
+	m.explicacion_estados = {
+		"q0": "Toma la siguiente joya de la cinta transportadora.",
+		"qa": "Todo el botín quedó clasificado.",
+		"qr": "La joya se envió al destino equivocado, o falta un dato.",
+	}
+	for g in GEMAS + ["F"]:
+		m.explicacion_estados["lleva_" + g] = "Comprueba el destino. Si es una bolsa, solo esa bolsa avanza."
+	return m
+
+
+static func destino_botin(gema: String) -> String:
+	if gema == "F":
+		return "v"
+	return "<" if gema in ["R", "A"] else ">"

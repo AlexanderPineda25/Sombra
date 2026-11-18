@@ -268,17 +268,17 @@ func _dibujar_radares(p: Partida, tiempo: float) -> void:
 						Color(1.0, 0.85, 0.3), true, true)
 			Def.BARRIDO, Def.ANALISIS:
 				draw_arc(r.pos, alc, 0, TAU, 96, Color(0.35, 1.0, 0.6, 0.25), 1.5)
-				# abanico del barrido limitado por los muros (rayos)
+				# El dibujo del haz sigue el alcance real del barrido.
 				var cola := 0.6
 				var n := 14
 				for k in n:
 					var a0: float = r.angulo - cola * float(k) / n
 					var a1: float = r.angulo - cola * float(k + 1) / n
-					var e0: Vector2 = p.mapa.rayo(r.pos, a0, alc)
-					var e1: Vector2 = p.mapa.rayo(r.pos, a1, alc)
+					var e0: Vector2 = r.extremo_barrido(a0)
+					var e1: Vector2 = r.extremo_barrido(a1)
 					var alfa := 0.32 * (1.0 - float(k) / n)
 					draw_colored_polygon(PackedVector2Array([r.pos, e0, e1]), Color(0.3, 1.0, 0.55, alfa))
-				draw_line(r.pos, p.mapa.rayo(r.pos, r.angulo, alc), Color(0.6, 1.0, 0.75, 0.9), 2.0)
+				draw_line(r.pos, r.extremo_barrido(r.angulo), Color(0.6, 1.0, 0.75, 0.9), 2.0)
 				# sectores ya registrados con presencia
 				for s in Radar.SECTORES:
 					if r.obs_p[s] == 1:

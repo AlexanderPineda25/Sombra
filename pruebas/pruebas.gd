@@ -23,7 +23,7 @@ func _correr() -> void:
 		"camaras_se_apagan", "terminal_fallida_hace_ruido",
 		"alerta_global_llega_a_todos", "deteccion_genera_alerta", "arbusto_area_real",
 		"no_ocultarse_si_te_ven", "busqueda_registra_arbusto", "registro_de_eventos",
-		"radar_afd", "radar_detecta_visible", "radar_respeta_arbusto", "radar_atraviesa_muros",
+		"perfiles_dificultad", "oido_por_dificultad", "radar_afd", "radar_detecta_visible", "radar_respeta_arbusto", "radar_atraviesa_muros",
 		"radar_fuera_de_alcance", "radar_ignora_guardias",
 		"musica_sigue_a_los_afd", "musica_fundido_gradual", "efectos_sin_saturar",
 		"tutoriales_completos", "ejercicio_coincide_con_la_maquina", "radar_registra_maquinas",
@@ -468,6 +468,47 @@ func _ciclo_radar(p: Partida, pos: Vector2, oculto := false) -> Dictionary:
 	return res
 
 
+func test_perfiles_dificultad() -> void:
+	for nivel in Niveles.cantidad():
+		var base: Array = Niveles.datos(nivel)["camaras"]
+		var alcance := 0.0
+		var intervalo := INF
+		for modo in Ajustes.MODOS.size():
+			var p := Partida.new(nivel, false, modo)
+			var puestos := {}
+			for c: Camara in p.camaras:
+				comprobar(p.mapa.es_pared(c.tile) and not puestos.has(c.tile), "anclaje sin duplicados")
+				puestos[c.tile] = true
+			comprobar(p.camaras.size() == base.size() + Ajustes.CAMARAS_EXTRA[modo])
+			var r: Radar = p.radares[0]
+			comprobar(r.alcance() > alcance and r.intervalo() < intervalo, "el radar aumenta su presión")
+			alcance = r.alcance()
+			intervalo = r.intervalo()
+			for t in p.terminales:
+				var d: Desafio = t["desafio"]
+				comprobar(d.dificultad == modo and d.ejecutar_intento(d.solucion_filas)["resultado"] == "ACEPTA")
+				if d.efecto == "camaras":
+					p.resolver_terminal(t)
+					for c: Camara in p.camaras:
+						comprobar(c.estado() == Def.APAGADA, "también se apagan los refuerzos")
+
+
+func test_oido_por_dificultad() -> void:
+	for modo in Ajustes.MODOS.size():
+		for distancia in [3.4, 4.3]:
+			var p := Partida.new(0, false, modo)
+			var g: Guardia = p.guardias[0]
+			p.jugador.pos = g.pos + Vector2(Config.TILE * distancia, 0)
+			p.jugador.moviendo = true
+			p.jugador.agachado = true
+			g._oir_pasos(p.jugador, 1.0)
+			comprobar(g.estado() == Def.PATRULLA, "agacharse conserva el sigilo")
+			p.jugador.agachado = false
+			g._oir_pasos(p.jugador, 1.0)
+			var oye: bool = (modo == Ajustes.Modo.MEDIO and distancia == 3.4) or modo == Ajustes.Modo.DIFICIL
+			comprobar((g.estado() == Def.SOSPECHA) == oye, "radio auditivo para el modo %d" % modo)
+
+
 func test_radar_detecta_visible() -> void:
 	var p := _partida_sin_guardias(1)
 	var r: Radar = p.radares[0]
@@ -514,7 +555,15 @@ func test_radar_atraviesa_muros() -> void:
 				objetivo = c
 	comprobar(objetivo != Vector2.ZERO, "hay una casilla tapada por muros")
 	var res := _ciclo_radar(p, objetivo)
-	comprobar(res.get("tipo", "") == "intrusion", "detrás de un muro también lo detecta")
+	comprobar(res.get("tipo", "") == "limpio", "el muro ofrece cobertura en Fácil")
+	p.radares[0] = Radar.new(r.tile, p.mapa, 0.0, Ajustes.Modo.MEDIO)
+	res = _ciclo_radar(p, objetivo)
+	comprobar(res.get("tipo", "") == "limpio", "el muro ofrece cobertura en Medio")
+	p.radares[0] = Radar.new(r.tile, p.mapa, 0.0, Ajustes.Modo.DIFICIL)
+	res = _ciclo_radar(p, objetivo)
+	comprobar(res.get("tipo", "") == "intrusion", "solo el radar Difícil atraviesa el muro")
+	res = _ciclo_radar(p, objetivo, true)
+	comprobar(res.get("tipo", "") == "limpio", "el arbusto protege también en Difícil")
 
 
 func test_radar_fuera_de_alcance() -> void:

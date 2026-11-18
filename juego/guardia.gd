@@ -40,6 +40,8 @@ var variante := 0                 ## aspecto del uniforme (0, 1 o 2)
 var seguridad: Seguridad          ## para registrar eventos y pedir alertas por radio
 var rng := RandomNumberGenerator.new()
 var puntos_busqueda: Array = []   ## lugares por registrar tras una alerta del radar
+var multiplicador_oido: float
+var multiplicador_vista: float
 var t_oido := 0.0                 ## evita reaccionar a cada paso en cada fotograma
 ## Pausas del programa de patrulla (lenguaje SOMBRA): índice de la ruta ->
 ## {tipo: "esperar" | "mirar", segundos, angulo}. El guardia las interpreta
@@ -53,7 +55,9 @@ var pausa_base := 0.0
 
 ## `programa` es un Array de casillas o, si viene del compilador de niveles,
 ## {puntos: [...], acciones: {indice_del_punto: pausa}}.
-func _init(p_id: int, programa, p_mapa: Mapa) -> void:
+func _init(p_id: int, programa, p_mapa: Mapa, modo := Ajustes.Modo.FACIL) -> void:
+	multiplicador_oido = Ajustes.OIDO[modo]
+	multiplicador_vista = Ajustes.VISTA[modo]
 	id = p_id
 	variante = p_id % 3
 	rng.seed = 1000 + p_id
@@ -231,7 +235,7 @@ func actualizar(dt: float, j: Jugador, demo := false) -> void:
 				tasa *= 0.55            # agachado cuesta más verlo
 			if estado() in [Def.ALERTA, Def.BUSQUEDA, Def.SOSPECHA]:
 				tasa *= 1.6
-			sospecha += tasa * Ajustes.dificultad * dt   # la dificultad acelera la detección
+			sospecha += tasa * multiplicador_vista * dt   # la dificultad acelera la detección
 			if sospecha >= 1.0:
 				evento("v")
 			elif sospecha > 0.3 and estado() in [Def.PATRULLA, Def.REGRESO]:
@@ -298,7 +302,7 @@ func _oir_pasos(j: Jugador, dt: float) -> void:
 		return
 	var d := j.pos.distance_to(pos) / T
 	var radio := Config.RADIO_PASOS_CORRER if j.corriendo else Config.RADIO_PASOS
-	if d > radio:
+	if d > radio * multiplicador_oido:
 		return
 	angulo = (j.pos - pos).angle()          # se voltea de inmediato
 	mirando = false

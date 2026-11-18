@@ -15,6 +15,13 @@ extends RefCounted
 const CARPETA := "res://niveles/"
 const ARCHIVOS := ["nivel1.sombra", "nivel2.sombra", "nivel3.sombra"]
 
+# Anclajes sobre muros y orientación hacia corredores. Se añaden por orden.
+const CAMARAS_REFUERZO := [
+	[[Vector2i(12, 6), 90], [Vector2i(25, 6), -90], [Vector2i(17, 16), 0]],
+	[[Vector2i(22, 11), -90], [Vector2i(19, 7), 90], [Vector2i(9, 17), 0]],
+	[[Vector2i(11, 7), 90], [Vector2i(21, 8), 90], [Vector2i(25, 15), 90]],
+]
+
 static var _compilados: Array = []
 
 

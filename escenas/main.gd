@@ -415,6 +415,10 @@ func _unhandled_input(e: InputEvent) -> void:
 			saltar_menu = true
 			disparar("enter")
 			return
+		if flujo.actual == Def.MENU and e.keycode in [KEY_LEFT, KEY_RIGHT]:
+			var paso := 1 if e.keycode == KEY_RIGHT else -1
+			Ajustes.elegir_dificultad(posmod(Ajustes.dificultad + paso, Ajustes.MODOS.size()))
+			return
 		match e.keycode:
 			KEY_ENTER, KEY_KP_ENTER:
 				disparar("enter")
@@ -432,7 +436,12 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_TAB:
 				guardia_sel += 1
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		if flujo.actual == Def.JUGANDO:
+		if flujo.actual == Def.MENU:
+			for i in Ajustes.MODOS.size():
+				if ui.rect_dificultad(i).has_point(e.position):
+					Ajustes.elegir_dificultad(i)
+					return
+		elif flujo.actual == Def.JUGANDO:
 			partida.lanzar_moneda(e.position)
 
 
@@ -564,7 +573,6 @@ func cerrar_tutorial() -> void:
 
 
 const PISTAS := {
-	"radar_aviso": "RADAR: atraviesa paredes. Escóndete en un arbusto antes del barrido.",
 	"oculto": "Oculto: guardias y radar no te ven… salvo que te busquen muy de cerca.",
 	"bloqueado": "No puedes esconderte mientras un guardia te está mirando.",
 	"radar_limpio": "El radar analiza con dos máquinas de Turing. Míralas en F1 › Máquinas de Turing.",
@@ -574,7 +582,14 @@ const PISTAS := {
 
 
 func _pista_por_efecto(tipo: String) -> void:
-	if PISTAS.has(tipo) and not partida.demo:
+	if partida.demo:
+		return
+	if tipo == "radar_aviso":
+		if partida.dificultad == Ajustes.Modo.DIFICIL:
+			pista("radar_paredes", "RADAR: atraviesa muros. Busca un arbusto antes del barrido.")
+		else:
+			pista("radar_cobertura", "RADAR: ponte detrás de un muro o escóndete en un arbusto.")
+	elif PISTAS.has(tipo):
 		pista(tipo, PISTAS[tipo])
 
 

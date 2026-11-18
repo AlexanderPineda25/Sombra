@@ -1,10 +1,5 @@
-## Pruebas de los tres minijuegos de máquinas de Turing y de la continuidad
-## de la música (matriz mínima de la especificación).
-##
-##   godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd
-##
-## Los minijuegos se conducen llamando a sus acciones (fijar disco, moverse,
-## frenar rotor…) con tiempos controlados: así los casos son reproducibles.
+## Integración de las terminales, el visor y la música.
+## godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd
 extends SceneTree
 
 const G := ["R", "Z", "E", "A"]
@@ -21,17 +16,15 @@ func _initialize() -> void:
 
 func _correr() -> void:
 	Ajustes.guardar_en_disco = false
-	Ajustes.dificultad = 1.0
 	Minijuego.accesible = false
 	main = load("res://escenas/main.tscn").instantiate()
 	root.add_child(main)
+	Ajustes.dificultad = Ajustes.Modo.FACIL
 	main.set_process(false)
 	var pruebas := [
-		"mt1_valido", "mt1_invalido_y_reintento", "mt1_timing_es_fisico", "mt1_visor_reproduce",
-		"mt1_ejemplos_aceptados", "mt1_dificultad",
-		"mt2_valido", "mt2_mascara_erronea", "mt2_mal_timing", "mt2_una_cinta_tres_pistas", "mt2_visor_en_curso",
-		"mt3_valido", "mt3_b_erroneo", "mt3_inversion_k", "mt3_cabezales_independientes", "mt3_timing_es_fisico",
-		"robustez_cerrar_a_medias", "persistencia_y_un_solo_minijuego", "alarma_sigue_en_panel",
+		"robot_y_visor", "robot_rechazo_y_reintento", "robot_luz",
+		"laser_detecta_y_conserva_refugio", "laser_apagado", "botin_reparto_y_descarte",
+		"dificultad_desde_menu", "minijuegos_dificiles", "robustez_cerrar_a_medias", "persistencia_y_un_solo_minijuego", "alarma_sigue_en_panel",
 		"musica_en_bucle", "musica_no_se_reinicia", "musica_cambio_tema", "musica_respeta_volumen",
 	]
 	for nombre in pruebas:
@@ -66,342 +59,221 @@ func abrir(nivel: int, id: String) -> Minijuego:
 	return mj
 
 
-func terminal(mj: Minijuego) -> Dictionary:
-	return mj.terminal
+
+func clic(mj: Minijuego, p: Vector2) -> void:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	e.position = p
+	mj._gui_input(e)
 
 
-# ---------------------------------------------------------------------- #
-# MT1 · Cerradura de la vitrina
-# ---------------------------------------------------------------------- #
-func _clave(mj: MJCerradura) -> String:
-	return mj.desafio.solucion_filas[0].split("#")[1]
+func tecla(mj: Minijuego, k: Key) -> void:
+	var e := InputEventKey.new()
+	e.keycode = k
+	e.pressed = true
+	mj._input(e)
 
 
-func _fijar_bien(mj: MJCerradura, i: int, g: String) -> bool:
-	mj.discos[i]["patina"] = 0.0
-	mj.discos[i]["ang"] = float(G.find(g)) + 0.05           # dentro de la tolerancia
-	return mj.fijar(i)
+func riel(mj: MJCerradura, i: int) -> void:
+	clic(mj, Vector2(mj.posicion(i), MJCerradura.Y_RIEL))
+	for j in 32:
+		mj._actualizar(0.05)
 
 
-func test_mt1_valido() -> void:
-	var mj: MJCerradura = abrir(0, "cerradura")
-	var clave := _clave(mj)
-	for i in clave.length():
-		comprobar(_fijar_bien(mj, i, clave[i]), "fija el disco %d" % i)
-	comprobar(mj.fase == "verificando", "al fijar todos se envía a la MT")
-	mj._actualizar(5.0)
-	var it: Dictionary = mj.desafio.ultimo_intento
-	comprobar(it["resultado"] == "ACEPTA", "la MT estándar acepta (%s)" % it["resultado"])
-	comprobar(mj.desafio.maquina is MTEstandar, "es la máquina estándar de una cinta")
-	comprobar(it["filas"][0] == mj.vitrina + "#" + clave, "entrada bien formada vitrina#clave")
-	comprobar(mj.desafio.resuelto and main.partida.mapa.puertas_abiertas, "la vitrina/puerta se abre")
-	comprobar(mj.fase == "exito")
-
-
-func test_mt1_invalido_y_reintento() -> void:
-	var mj: MJCerradura = abrir(0, "cerradura")
-	var clave := _clave(mj)
-	var mala: String = G[(G.find(clave[1]) + 1) % 4]
-	for i in clave.length():
-		_fijar_bien(mj, i, mala if i == 1 else clave[i])
-	mj._actualizar(5.0)
-	var it: Dictionary = mj.desafio.ultimo_intento
-	comprobar(it["resultado"] == "RECHAZA", "la MT rechaza la clave con un disco mal")
-	comprobar(not mj.desafio.resuelto and not main.partida.mapa.puertas_abiertas)
-	comprobar(terminal(mj)["desafio"].intentos == 1, "cuenta como intento lógico")
-	comprobar(not mj.discos[1]["fijo"] and mj.discos[1]["error"] > 0.0,
-			"se marca el disco 2, el que señala la posición del cabezal")
-	comprobar(mj.discos[0]["fijo"] and mj.discos[2]["fijo"], "los demás discos siguen fijados")
-	comprobar(mj.fase == "juego", "se permite reintentar")
-	_fijar_bien(mj, 1, clave[1])
-	mj._actualizar(5.0)
-	comprobar(mj.desafio.ultimo_intento["resultado"] == "ACEPTA" and mj.desafio.resuelto, "el reintento abre")
-
-
-func test_mt1_timing_es_fisico() -> void:
-	var mj: MJCerradura = abrir(0, "cerradura")
-	var clave := _clave(mj)
-	mj.discos[0]["ang"] = float(G.find(clave[0])) + 0.49     # entre dos gemas
-	comprobar(not mj.fijar(0), "fuera de la ventana no se fija")
-	comprobar(mj.sobrecarga == 0, "en el ensayo el desliz no cuenta")
-	_fijar_bien(mj, 0, clave[0])                              # termina el ensayo
-	var regs_antes: int = main.partida.seguridad.contador.get("seguridad", 0)
-	for k in 3:
-		mj.discos[1]["patina"] = 0.0
-		mj.discos[1]["ang"] = 1.5
-		mj.fijar(1)
-	comprobar(mj.fallos_fisicos == 1, "tres deslices = un fallo físico (ruido)")
-	comprobar(main.partida.seguridad.contador.get("seguridad", 0) == regs_antes + 1, "se registra como físico")
-	comprobar(terminal(mj)["desafio"].intentos == 0, "un fallo físico NO es un rechazo de la MT")
-	comprobar(mj.desafio.ultimo_intento.is_empty(), "la MT no se ejecutó")
-	mj.reloj = 0.01
-	mj._actualizar(0.05)
-	comprobar(mj.fallos_fisicos == 2 and is_equal_approx(mj.reloj, mj.reloj_total), "reloj agotado = fallo físico")
+func llenar_robot(mj: MJCerradura, incorrecto := false) -> void:
 	Minijuego.accesible = true
-	var r := mj.reloj
-	mj._actualizar(1.0)
-	comprobar(is_equal_approx(mj.reloj, r), "modo accesible: sin reloj")
+	var n := mj.vitrina.length()
+	var rotar := 0
+	if incorrecto:
+		for i in range(1, n):
+			if mj.vitrina[i] != mj.vitrina[0]:
+				rotar = i
+				break
+		# La entrada de prueba debe tener al menos dos tipos de joya.
+		if rotar == 0:
+			mj.vitrina[1] = G[(G.find(mj.vitrina[0]) + 1) % G.size()]
+			rotar = 1
+	for i in n:
+		riel(mj, i)
+		riel(mj, n + 1 + mj._hueco((i + rotar) % n))
 	Minijuego.accesible = false
 
 
-func test_mt1_visor_reproduce() -> void:
+func verificar_visor(mj: Minijuego) -> void:
+	var datos := mj.desafio.ultimo_intento.duplicate(true)
+	tecla(mj, KEY_V)
+	comprobar(main.terminal_ui.visible and main.terminal_ui.modo_visor, "V abre el visor")
+	for i in datos["pasos"]:
+		main.terminal_ui._un_paso()
+	var m: MaquinaTuring = main.terminal_ui.desafio.maquina
+	comprobar(m.historial == datos["transiciones"], "el visor reproduce las transiciones reales")
+	main.terminal_ui._salir()
+	comprobar(mj.desafio.ultimo_intento == datos and mj.visible, "el visor conserva el intento y el minijuego")
+
+
+func test_robot_y_visor() -> void:
 	var mj: MJCerradura = abrir(0, "cerradura")
-	var clave := _clave(mj)
-	for i in clave.length():
-		_fijar_bien(mj, i, G[(G.find(clave[i]) + 2) % 4] if i == clave.length() - 1 else clave[i])
-	mj._actualizar(5.0)
-	var it: Dictionary = mj.desafio.ultimo_intento
-	var intentos: int = mj.desafio.intentos
-	mj.abrir_visor()
-	var tu = main.terminal_ui
-	comprobar(tu.visible and tu.modo_visor and mj.visible, "el visor se abre encima del minijuego")
-	var reproducidas := []
-	for k in 6000:
-		if tu.desafio.maquina.detenida():
-			break
-		tu._avanzar()
-		reproducidas.append(tu.desafio.maquina.ultima)
-	comprobar(reproducidas.size() == it["pasos"], "mismo número de pasos (%d / %d)" % [reproducidas.size(), it["pasos"]])
-	var iguales := true
-	for k in mini(reproducidas.size(), it["transiciones"].size()):
-		iguales = iguales and reproducidas[k] == it["transiciones"][k]
-	comprobar(iguales, "el visor muestra las MISMAS transiciones que ejecutó el minijuego")
-	comprobar(tu.desafio.maquina.resultado() == it["resultado"])
-	tu._salir()
-	comprobar(not tu.visible and mj.visible, "cerrar el visor vuelve al minijuego")
-	comprobar(mj.desafio.ultimo_intento == it and mj.desafio.intentos == intentos and not mj.desafio.resuelto,
-			"abrir/cerrar el visor no cambia el desafío")
-	comprobar(main.flujo.actual == Def.TERMINAL)
+	llenar_robot(mj)
+	mj.avanzar_lectura(12)
+	comprobar(mj.desafio.ultimo_intento["resultado"] == "EN CURSO", "el lector avanza en vivo")
+	verificar_visor(mj)
+	mj.avanzar_lectura(Desafio.MAX_PASOS)
+	comprobar(mj.fase == "exito" and main.partida.mapa.puertas_abiertas, "la MT abre la vitrina")
+	verificar_visor(mj)
 
 
-func test_mt1_ejemplos_aceptados() -> void:
-	for semilla in 30:
-		var d := Desafio.crear("cerradura", semilla)
-		comprobar(d.ejemplos.size() == 2, "dos ejemplos (semilla %d)" % semilla)
-		var m := ProgramasTuring.verificador_clave(d.regla, d.invertir)
-		for e in d.ejemplos:
-			m.cargar(e[0] + "#" + e[1])
-			comprobar(m.ejecutar() == "ACEPTA", "el ejemplo %s#%s lo acepta la MT" % [e[0], e[1]])
+func test_robot_rechazo_y_reintento() -> void:
+	var mj: MJCerradura = abrir(0, "cerradura")
+	llenar_robot(mj, true)
+	mj.avanzar_lectura(Desafio.MAX_PASOS)
+	comprobar(mj.desafio.ultimo_intento["resultado"] == "RECHAZA" and not mj.desafio.resuelto)
+	comprobar(mj.fase == "juego" and "hueco" in mj.aviso)
+	tecla(mj, KEY_SPACE)
+	comprobar(mj.carga >= 0 and "_" in mj.clave, "se puede corregir el hueco que señaló el lector")
 
 
-func test_mt1_dificultad() -> void:
-	for par in [[0.6, 3], [1.0, 4], [1.4, 5]]:
-		Ajustes.dificultad = par[0]
-		var d := Desafio.crear("cerradura", 7)
-		comprobar(d.solucion_filas[0].split("#")[0].length() == par[1], "dificultad %s -> %d gemas" % par)
-		var m := ProgramasTuring.verificador_clave(d.regla, d.invertir)
-		m.cargar(d.solucion_filas[0])
-		comprobar(m.ejecutar() == "ACEPTA", "la solución generada es aceptada")
-	Ajustes.dificultad = 1.0
+func test_robot_luz() -> void:
+	var mj: MJCerradura = abrir(0, "cerradura")
+	var n := mj.vitrina.length()
+	riel(mj, 0)
+	riel(mj, n + 1 + mj._hueco(0))
+	riel(mj, 1)
+	mj.reloj_luz = 4.6
+	mj.x = MJCerradura.CENTRO
+	mj._actualizar(0.01)
+	comprobar(mj.carga == -1 and mj.clave.count("_") == n - 1, "la luz solo devuelve la gema en tránsito")
+	comprobar(mj.desafio.intentos == 0, "el lector aún no comparó la clave")
 
 
-# ---------------------------------------------------------------------- #
-# MT2 · Rejilla láser
-# ---------------------------------------------------------------------- #
-## Espera (adelantando el reloj de los haces) a una ventana segura y cruza el haz j.
-func _cruzar(mj: MJLaser, j: int, mascara: String) -> void:
-	mj.poner_mascara(mascara)
-	mj.x = mj.gate_x(j) - 40.0
-	for k in 2000:
-		if not mj.haz_encendido(j) and mj.hasta_cambio(j) > 0.6:
-			break
-		mj.t_laser += 0.01
-	for k in 40:
-		mj.mover(3.0)
-		if mj.activa() != j or mj.x < mj.gate_x(j) - 45.0:
-			break
-
-
-func test_mt2_valido() -> void:
+func test_laser_detecta_y_conserva_refugio() -> void:
 	var mj: MJLaser = abrir(1, "laser")
-	var sol: String = mj.desafio.solucion_filas[1]
-	_cruzar(mj, 0, "R")
-	comprobar(mj.practica_hecha and not mj.ensayo, "se supera el haz de ensayo")
-	for c in mj.n:
-		_cruzar(mj, c + 1, sol[c])
-		comprobar(mj.maquina().cabezal == c + 1, "columna %d autorizada, el cabezal avanza" % c)
-		comprobar(mj.x > mj.gate_x(c + 1) and (c + 2 > mj.n or mj.x < mj.gate_x(c + 2)),
-				"el ladrón está en el refugio de la columna del cabezal")
-	for k in 400:
-		mj.mover(4.0)
-		if mj.fase != "juego":
-			break
-	comprobar(mj.fase == "verificando", "al llegar a la salida la máquina termina su programa")
-	mj._actualizar(2.0)
-	comprobar(mj.desafio.ultimo_intento["resultado"] == "ACEPTA", "la multipista acepta")
-	comprobar(mj.desafio.resuelto and not main.partida.laser_activo, "la rejilla del museo se apaga")
-	comprobar(mj.fallos_logicos == 0 and mj.fallos_fisicos == 0)
+	tecla(mj, KEY_1 + G.find(mj.haces[0]))
+	clic(mj, Vector2(700, 475))
+	for j in 14:
+		mj._actualizar(0.05)
+	comprobar(mj.avanzados == 1 and mj.encendidos[0] == "1")
+	verificar_visor(mj)
+	mj.mascara = G[(G.find(mj.haces[1]) + 1) % G.size()]
+	mj.mover(120)
+	comprobar(mj.desafio.ultimo_intento["resultado"] == "RECHAZA")
+	comprobar(mj.avanzados == 1 and mj.x == mj.refugio(1) and mj.desafio.intentos == 1)
+	for i in range(1, mj.haces.length()):
+		tecla(mj, KEY_1 + G.find(mj.haces[i]))
+		mj.mover(120)
+	comprobar(mj.fase == "exito" and not main.partida.laser_activo)
+	verificar_visor(mj)
 
 
-func test_mt2_mascara_erronea() -> void:
+func test_laser_apagado() -> void:
 	var mj: MJLaser = abrir(1, "laser")
-	var sol: String = mj.desafio.solucion_filas[1]
-	_cruzar(mj, 0, "R")
-	_cruzar(mj, 1, sol[0])
-	var mala: String = G[(G.find(sol[1]) + 2) % 4]
-	_cruzar(mj, 2, mala)
-	comprobar(mj.desafio.ultimo_intento["resultado"] == "RECHAZA", "rechazo lógico de la MT")
-	comprobar(terminal(mj)["desafio"].intentos == 1 and mj.fallos_logicos == 1 and mj.fallos_fisicos == 0,
-			"cuenta como fallo LÓGICO, no físico")
-	comprobar(mj.maquina().cabezal == 1 and mj.maquina().estado == "q0", "checkpoint: la máquina vuelve a la columna 1")
-	comprobar(mj.x < mj.gate_x(2) and mj.x > mj.gate_x(1), "el ladrón vuelve al refugio de esa columna")
-	_cruzar(mj, 2, sol[1])
-	comprobar(mj.maquina().cabezal == 2, "tras corregir la máscara se avanza")
+	mj.reloj_haz = 4.0
+	mj.mascara = G[(G.find(mj.haces[0]) + 1) % G.size()]
+	mj.mover(120)
+	var m := mj.desafio.maquina as MTMultipista
+	comprobar(mj.avanzados == 1 and m.cabezal == 1 and m.ultima["leido"][2] == "0")
 
 
-func test_mt2_mal_timing() -> void:
-	var mj: MJLaser = abrir(1, "laser")
-	_cruzar(mj, 0, "R")
-	var pasos_antes: int = mj.desafio.ultimo_intento["pasos"]
-	mj.x = mj.gate_x(1) - 40.0
-	for k in 2000:
-		if mj.haz_encendido(1) and mj.hasta_cambio(1) > 0.6:
-			break
-		mj.t_laser += 0.01
-	for k in 20:
-		mj.mover(3.0)
-		if mj.fallos_fisicos > 0:
-			break
-	comprobar(mj.fallos_fisicos == 1, "cruzar con el haz encendido es un fallo físico")
-	comprobar(terminal(mj)["desafio"].intentos == 0 and mj.fallos_logicos == 0, "no es un rechazo de la MT")
-	comprobar(mj.maquina().cabezal == 0 and mj.desafio.ultimo_intento["pasos"] == pasos_antes,
-			"la máquina no leyó nada")
-	comprobar(mj.x < mj.gate_x(1), "vuelve al refugio")
-
-
-func test_mt2_una_cinta_tres_pistas() -> void:
-	var mj: MJLaser = abrir(1, "laser")
-	var mq := mj.maquina()
-	comprobar(mq is MTMultipista and mq.k == 3, "una cinta de 3 pistas")
-	comprobar(typeof(mq.cabezal) == TYPE_INT, "un único cabezal")
-	var sol: String = mj.desafio.solucion_filas[1]
-	_cruzar(mj, 0, "R")
-	_cruzar(mj, 1, sol[0])
-	var t: Dictionary = mj.desafio.ultimo_intento["transiciones"][-1]
-	comprobar(t["leido"].size() == 3 and typeof(t["mov"]) == TYPE_STRING, "lee una tupla y hace UN movimiento")
-
-
-func test_mt2_visor_en_curso() -> void:
-	var mj: MJLaser = abrir(1, "laser")
-	var sol: String = mj.desafio.solucion_filas[1]
-	_cruzar(mj, 0, "R")
-	_cruzar(mj, 1, sol[0])
-	_cruzar(mj, 2, sol[1])
-	var it: Dictionary = mj.desafio.ultimo_intento
-	comprobar(it["resultado"] == "EN CURSO" and it["pasos"] == 2, "registro en curso de 2 pasos")
-	mj.abrir_visor()
-	var tu = main.terminal_ui
-	for k in 50:
-		tu._avanzar()
-	comprobar(tu.desafio.maquina.pasos == 2, "el visor se detiene donde va la máquina del juego")
-	comprobar(tu.desafio.maquina.historial == it["transiciones"], "mismas transiciones reales")
-	comprobar(tu.desafio.maquina.cabezal == mj.maquina().cabezal, "mismo cabezal")
-	tu._salir()
-	comprobar(mj.maquina().cabezal == 2 and mj.fase == "juego", "el minijuego sigue igual")
-
-
-# ---------------------------------------------------------------------- #
-# MT3 · Bóveda
-# ---------------------------------------------------------------------- #
-func test_mt3_valido() -> void:
+func test_botin_reparto_y_descarte() -> void:
 	var mj: MJBoveda = abrir(2, "boveda")
-	var sol: String = mj.desafio.solucion_filas[1]
-	var mq := mj.maquina()
-	comprobar(mq is MTMulticinta and mq.k == 3, "tres cintas")
-	comprobar(mq.cintas[2].cabezal == mj.n - 1 and mq.cintas[0].cabezal == 0,
-			"fase q0 real: el cabezal 3 fue al final y los otros esperan")
-	for i in mj.n:
-		comprobar(mj.confirmar_ronda(sol[i]), "ronda %d" % i)
-		if i < mj.n - 1:
-			mq = mj.maquina()
-			comprobar(mq.cintas[0].cabezal == i + 1 and mq.cintas[1].cabezal == i + 1, "A y B avanzan")
-			comprobar(mq.cintas[2].cabezal == mj.n - 2 - i, "K retrocede (lee al revés)")
-	comprobar(mj.desafio.ultimo_intento["resultado"] == "ACEPTA", "la multicinta acepta")
-	comprobar(mj.desafio.resuelto and main.partida.mapa.puertas_abiertas, "la bóveda se abre")
+	var correcta := ProgramasTuring.destino_botin(mj.gema_actual())
+	tecla(mj, KEY_LEFT if correcta != "<" else KEY_DOWN)
+	comprobar(mj.indice == 0 and mj.desafio.ultimo_intento["resultado"] == "RECHAZA" and mj.desafio.intentos == 0)
+	var descartadas := 0
+	for i in mj.cantidad:
+		var antes := Vector2i(mj.izquierda.length(), mj.derecha.length())
+		var destino := ProgramasTuring.destino_botin(mj.gema_actual())
+		if i == 2:
+			mj.enviar(">" if destino == "<" else "<")
+			var rechazado := mj.desafio.maquina as MTMulticinta
+			comprobar(rechazado.estado == rechazado.rechaza and rechazado.cintas[0].cabezal == 2 * i + 1)
+			comprobar(mj.indice == i and mj.desafio.intentos == 1, "se conserva el botín ya clasificado")
+		if destino == "v":
+			descartadas += 1
+		tecla(mj, {"<": KEY_LEFT, ">": KEY_RIGHT, "v": KEY_DOWN}[destino])
+		var m := mj.desafio.maquina as MTMulticinta
+		var avance := Vector2i(m.cintas[1].cabezal, m.cintas[2].cabezal) - antes
+		comprobar(avance == {"<": Vector2i(1, 0), ">": Vector2i(0, 1), "v": Vector2i.ZERO}[destino])
+		mj._actualizar(0.3)
+	comprobar(descartadas == 2 and mj.fase == "exito" and main.partida.mapa.puertas_abiertas)
+	verificar_visor(mj)
 
 
-func test_mt3_b_erroneo() -> void:
-	var mj: MJBoveda = abrir(2, "boveda")
-	var sol: String = mj.desafio.solucion_filas[1]
-	mj.confirmar_ronda(sol[0])
-	comprobar(not mj.confirmar_ronda(G[(G.find(sol[1]) + 1) % 4]), "desplazamiento de B erróneo")
-	comprobar(mj.desafio.ultimo_intento["resultado"] == "RECHAZA", "rechazo de la MT")
-	comprobar(mj.ronda == 1 and mj.b_conf[1] == "" and mj.error_b > 0.0, "se marca el rotor y se repite la ronda")
-	comprobar(terminal(mj)["desafio"].intentos == 1 and mj.fallos_fisicos == 0)
-	comprobar(mj.confirmar_ronda(sol[1]) and mj.ronda == 2, "tras corregir se avanza")
+func test_dificultad_desde_menu() -> void:
+	main.cerrar_terminal()
+	main.flujo.actual = Def.MENU
+	var e := InputEventKey.new()
+	e.keycode = KEY_RIGHT
+	e.pressed = true
+	main._unhandled_input(e)
+	comprobar(Ajustes.dificultad == Ajustes.Modo.MEDIO)
+	var clic_menu := InputEventMouseButton.new()
+	clic_menu.button_index = MOUSE_BUTTON_LEFT
+	clic_menu.position = main.ui.rect_dificultad(Ajustes.Modo.DIFICIL).get_center()
+	clic_menu.pressed = true
+	main._unhandled_input(clic_menu)
+	comprobar(Ajustes.dificultad == Ajustes.Modo.DIFICIL)
+	e.keycode = KEY_2
+	main._unhandled_input(e)
+	comprobar(main.nivel == 1 and main.partida.dificultad == Ajustes.Modo.DIFICIL)
+	Ajustes.elegir_dificultad(Ajustes.Modo.FACIL)
+	comprobar(main.partida.dificultad == Ajustes.Modo.DIFICIL, "el nivel en curso conserva sus reglas")
 
 
-func test_mt3_inversion_k() -> void:
-	var mj: MJBoveda = abrir(2, "boveda")
-	var sol: String = mj.desafio.solucion_filas[1]
-	var k: String = mj.k
-	var r := mj.desafio.ejecutar_intento([mj.a, sol, k])
-	comprobar(r["resultado"] == "ACEPTA", "con K al revés acepta")
-	if k != k.reverse():
-		r = mj.desafio.ejecutar_intento([mj.a, sol, k.reverse()])
-		comprobar(r["resultado"] == "RECHAZA", "si K no está invertida, la MT rechaza")
+func test_minijuegos_dificiles() -> void:
+	Ajustes.elegir_dificultad(Ajustes.Modo.DIFICIL)
+	var robot := abrir(0, "cerradura") as MJCerradura
+	comprobar(robot.vitrina.length() == 6 and robot.desafio.invertir)
+	llenar_robot(robot)
+	robot.avanzar_lectura(Desafio.MAX_PASOS)
+	comprobar(robot.fase == "exito")
+	var laser := abrir(1, "laser") as MJLaser
+	comprobar(laser.haces.length() == 7)
+	for i in laser.haces.length():
+		laser.mascara = laser.haces[i]
+		laser.cruzar()
+	comprobar(laser.fase == "exito")
+	var botin := abrir(2, "boveda") as MJBoveda
+	comprobar(botin.cantidad == 12 and botin._limite() == 0.0, "la primera joya sigue siendo práctica")
+	botin.enviar(ProgramasTuring.destino_botin(botin.gema_actual()))
+	botin._actualizar(3.8)
+	comprobar(botin.indice == 1 and "atascó" in botin.aviso)
+	Minijuego.accesible = true
+	comprobar(botin._limite() == 0.0)
+	for i in range(1, botin.cantidad):
+		botin.enviar(ProgramasTuring.destino_botin(botin.gema_actual()))
+		botin._actualizar(0.3)
+	comprobar(botin.fase == "exito")
+	Minijuego.accesible = false
+	Ajustes.elegir_dificultad(Ajustes.Modo.FACIL)
 
 
-func test_mt3_cabezales_independientes() -> void:
-	var mj: MJBoveda = abrir(2, "boveda")
-	var sol: String = mj.desafio.solucion_filas[1]
-	for i in mj.n:
-		mj.confirmar_ronda(sol[i])
-	var movs := {}
-	for t in mj.desafio.ultimo_intento["transiciones"]:
-		movs[",".join(t["mov"])] = true
-	comprobar(movs.has("S,S,R"), "solo el cabezal 3 avanza en q0")
-	comprobar(movs.has("R,R,L"), "1 y 2 a la derecha mientras 3 retrocede")
-
-
-func test_mt3_timing_es_fisico() -> void:
-	var mj: MJBoveda = abrir(2, "boveda")
-	mj.anim = []
-	mj.ang_b = 1.5
-	comprobar(not mj.frenar() and mj.atasco > 0.0, "frenar entre dos gemas atasca el rotor")
-	mj.atasco = 0.0
-	mj.ang_b = 2.02
-	comprobar(mj.frenar() and mj.gema_b == "E", "frena dentro de la tolerancia")
-	mj.t_ronda = mj.periodo_k() * 0.8                 # fuera de la ventana de sincronía
-	comprobar(not mj.confirmar(), "confirmar sin sincronía no envía nada a la MT")
-	comprobar(mj.ronda == 0 and terminal(mj)["desafio"].intentos == 0, "no es un intento lógico")
-
-
-# ---------------------------------------------------------------------- #
-# Robustez, persistencia, regresión
-# ---------------------------------------------------------------------- #
 func test_robustez_cerrar_a_medias() -> void:
 	var mj: MJLaser = abrir(1, "laser")
-	var sol: String = mj.desafio.solucion_filas[1]
-	_cruzar(mj, 0, "R")
-	_cruzar(mj, 1, sol[0])
+	mj.mascara = mj.haces[0]
+	mj.mover(120)
+	var t := mj.terminal
 	main.cerrar_terminal()
-	comprobar(main.flujo.actual == Def.JUGANDO and not mj.visible, "se cierra sin error")
-	comprobar(main.terminal_abierta == null)
-	main.terminal_abierta = mj.terminal
+	comprobar(main.flujo.actual == Def.JUGANDO and not mj.visible)
+	main.terminal_abierta = t
 	main.disparar("terminal")
-	comprobar(mj.visible and mj.fase == "intro" and mj.maquina().cabezal == 0, "al volver empieza limpio")
-	main.disparar("esc")
+	comprobar(mj.visible and mj.fase == "intro" and mj.avanzados == 0)
+	main.cerrar_terminal()
 
 
 func test_persistencia_y_un_solo_minijuego() -> void:
 	var mj: MJCerradura = abrir(0, "cerradura")
-	var monedas: int = main.partida.jugador.monedas
-	var clave := _clave(mj)
-	for i in clave.length():
-		_fijar_bien(mj, i, clave[i])
-	mj._actualizar(5.0)
+	llenar_robot(mj)
+	mj.avanzar_lectura(Desafio.MAX_PASOS)
+	var t := mj.terminal
+	main.cerrar_terminal()
+	main.terminal_abierta = t
+	main.disparar("terminal")
 	var abiertos := 0
 	for m in main.minijuegos.values():
 		abiertos += 1 if m.visible else 0
-	comprobar(abiertos == 1, "un solo minijuego visible")
+	comprobar(abiertos == 1 and mj.fase == "exito")
 	main.cerrar_terminal()
-	comprobar(main.partida.jugador.monedas == monedas, "no se pierde progreso no relacionado")
-	main.terminal_abierta = mj.terminal
-	main.disparar("terminal")
-	comprobar(mj.fase == "exito" and mj.desafio.resuelto, "reabrir una terminal resuelta muestra el éxito")
-	main.disparar("esc")
-	comprobar(main.capa_tutorial.visible == false and not main.get_tree().paused, "no se pausa el juego")
 
 
 func test_alarma_sigue_en_panel() -> void:
@@ -445,10 +317,8 @@ func test_musica_no_se_reinicia() -> void:
 	var r: int = a.reinicios_musica
 	var tema: String = a.tema_actual
 	var mj: MJCerradura = abrir(0, "cerradura")
-	var clave := _clave(mj)
-	for i in clave.length():
-		_fijar_bien(mj, i, G[(G.find(clave[i]) + 1) % 4])
-	mj._actualizar(5.0)                        # fallo
+	llenar_robot(mj, true)
+	mj.avanzar_lectura(Desafio.MAX_PASOS)
 	mj.abrir_visor()
 	main.terminal_ui._alternar_ejecucion()
 	main.terminal_ui._un_paso()

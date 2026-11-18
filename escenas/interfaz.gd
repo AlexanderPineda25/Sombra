@@ -175,6 +175,10 @@ func _velo(alfa := 0.67) -> void:
 	draw_rect(Rect2(0, 0, Config.ANCHO, Config.ALTO), Color(0.02, 0.02, 0.05, alfa))
 
 
+func rect_dificultad(i: int) -> Rect2:
+	return Rect2(Config.ANCHO / 2.0 - 224 + i * 152, 415, 144, 38)
+
+
 func _menu(tiempo: float) -> void:
 	_velo(0.55)
 	var cx := Config.ANCHO / 2.0
@@ -206,12 +210,20 @@ func _menu(tiempo: float) -> void:
 		Dibujo.texto(self, maquinas[i], r.position + Vector2(44, 40), 13, Color(0.45, 0.85, 1.0))
 		Dibujo.texto(self, "nivel%d.sombra" % (i + 1), r.position + Vector2(44, 58), 12, Config.TEXTO_SUAVE)
 
+	Dibujo.texto(self, "Dificultad  ·  ← → o clic", Vector2(cx, 400), 15, Config.TEXTO_SUAVE, true)
+	for i in Ajustes.MODOS.size():
+		var r := rect_dificultad(i)
+		var seleccionado := i == Ajustes.dificultad
+		draw_rect(r, Color(Config.ACENTO, 0.26) if seleccionado else Config.HUD_FONDO)
+		draw_rect(r, Config.ACENTO if seleccionado else Color(Config.TEXTO_SUAVE, 0.6), false, 2.0 if seleccionado else 1.0)
+		Dibujo.texto(self, Ajustes.MODOS[i], r.get_center(), 18, Config.TEXTO, true, seleccionado)
+
 	var lineas := [
 		"WASD / flechas: moverte    C: agacharte    Shift: correr    Clic o Q: moneda",
 		"E: terminal (máquinas de Turing)    Esc: pausa    F1: consola (AFD, MT, radar, lenguaje)",
 	]
 	for i in lineas.size():
-		Dibujo.texto(self, lineas[i], Vector2(cx, 420 + i * 28), 17, Config.TEXTO_SUAVE, true)
+		Dibujo.texto(self, lineas[i], Vector2(cx, 477 + i * 28), 17, Config.TEXTO_SUAVE, true)
 	# franja de modelos de computación
 	var modelos := ["AFD", "AP", "MT estándar", "MT multicinta", "MT multipista", "ER → AFN → AFD", "Gramática LL(1)",
 			"Gramática musical"]
@@ -221,12 +233,12 @@ func _menu(tiempo: float) -> void:
 	var xm := cx - total / 2.0
 	for m in modelos:
 		var w := Dibujo.ancho_texto(m, 13, true) + 18
-		draw_rect(Rect2(xm, 488, w, 22), Color(0.06, 0.12, 0.16, 0.9))
-		draw_rect(Rect2(xm, 488, w, 22), Color(0.3, 0.86, 1.0, 0.5), false, 1.0)
-		Dibujo.texto(self, m, Vector2(xm + w / 2, 499), 13, Color(0.55, 0.92, 1.0), true, true, false)
+		draw_rect(Rect2(xm, 552, w, 22), Color(0.06, 0.12, 0.16, 0.9))
+		draw_rect(Rect2(xm, 552, w, 22), Color(0.3, 0.86, 1.0, 0.5), false, 1.0)
+		Dibujo.texto(self, m, Vector2(xm + w / 2, 563), 13, Color(0.55, 0.92, 1.0), true, true, false)
 		xm += w + 8
 	if int(tiempo * 2) % 2 == 0:
-		Dibujo.texto(self, "ENTER: empezar      1 · 2 · 3: elegir nivel", Vector2(cx, 556), 26, Color.WHITE, true, true)
+		Dibujo.texto(self, "ENTER: empezar      1 · 2 · 3: elegir nivel", Vector2(cx, 613), 26, Color.WHITE, true, true)
 
 
 ## Tarjeta al empezar un nivel: nombre, objetivo y los modelos que lo vigilan.
@@ -239,7 +251,7 @@ func _tarjeta_nivel(p: Partida, t: float) -> void:
 	draw_rect(r, Color(Config.ACENTO, 0.8 * alfa), false, 2.0)
 	draw_rect(Rect2(r.position.x, r.position.y, r.size.x, 4), Color(Config.ACENTO, alfa))
 	var partes := p.nombre.split(" · ")
-	Dibujo.texto(self, partes[0].to_upper(), Vector2(cx, r.position.y + 34), 20, Color(Config.ACENTO, alfa), true, true)
+	Dibujo.texto(self, partes[0].to_upper() + "  ·  " + Ajustes.MODOS[p.dificultad].to_upper(), Vector2(cx, r.position.y + 34), 20, Color(Config.ACENTO, alfa), true, true)
 	Dibujo.texto(self, partes[1] if partes.size() > 1 else p.nombre, Vector2(cx, r.position.y + 74), 44,
 			Color(1, 1, 1, alfa), true, true)
 	var obj := "Roba %d joyas%s y escapa por la salida." % [p.total_joyas,

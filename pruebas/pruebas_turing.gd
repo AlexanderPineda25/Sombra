@@ -18,7 +18,7 @@ func _initialize() -> void:
 		"desafio_edicion", "correlador_exhaustivo", "analizador_exhaustivo",
 		"clave_gemas_exhaustivo", "cerradura_dinamica", "bateria",
 		"equilibrio_gemas_exhaustivo", "rueda_multicinta_exhaustivo", "escalera_multipista_exhaustivo",
-		"terminales_dinamicas",
+		"terminales_dinamicas", "cruce_colores", "reparto_botin",
 	]
 	for nombre in pruebas:
 		_actual = nombre
@@ -219,16 +219,16 @@ func test_desafios_fallos() -> void:
 
 
 func test_desafio_edicion() -> void:
-	var d := Desafio.crear("boveda", 3)
-	var a: String = d.filas[0]["contenido"]
-	var b: String = d.filas[1]["contenido"]
-	d.alternar(1, 0)
-	comprobar(d.filas[1]["contenido"] != b, "la cinta B se edita")
-	d.alternar(0, 0)                          # la cinta del sensor no se edita
-	comprobar(d.filas[0]["contenido"] == a)
-	d.poner(1, 0, "E")
-	comprobar(d.filas[1]["contenido"][0] == "E")
-	comprobar((d.maquina as MTMulticinta).cintas[1].contenido() == d.filas[1]["contenido"], "la máquina se recarga")
+	var d := Desafio.crear("cerradura", 3)
+	var original: String = d.filas[0]["contenido"]
+	var limite := original.find("#") + 1
+	d.alternar(0, 0)
+	comprobar(d.filas[0]["contenido"] == original, "la vitrina no se edita")
+	d.alternar(0, limite)
+	comprobar(d.filas[0]["contenido"] != original, "el hueco se puede editar")
+	d.poner(0, limite, "E")
+	comprobar(d.filas[0]["contenido"][limite] == "E")
+	comprobar((d.maquina as MTEstandar).cinta.leer_en(limite) == "E")
 
 
 ## El correlador multicinta escribe I = P AND NOT A en cada sector.
@@ -318,22 +318,15 @@ func test_clave_gemas_exhaustivo() -> void:
 
 
 func test_cerradura_dinamica() -> void:
-	var vistos := {}
-	for semilla in 60:
-		var d := Desafio.crear("cerradura", semilla)
-		vistos[d.acertijo] = true
-		for i in d.filas.size():
-			d.filas[i]["contenido"] = d.solucion_filas[i]
-		d.construir()
-		d.maquina.ejecutar(5000)
-		comprobar(d.comprobar()["exito"], "semilla %d (%s)" % [semilla, d.acertijo])
-		# solo la clave (tras el #) se puede editar
-		var antes: String = d.filas[0]["contenido"]
-		d.alternar(0, 0)
-		comprobar(d.filas[0]["contenido"] == antes, "la vitrina no se edita")
-		d.alternar(0, 5)
-		comprobar(d.filas[0]["contenido"] != antes, "la clave sí se edita")
-	comprobar(vistos.size() == Desafio.ACERTIJOS.size(), "aparecen todos los acertijos: %s" % [vistos.keys()])
+	for caso in [[Ajustes.Modo.FACIL, 4, false], [Ajustes.Modo.MEDIO, 5, true], [Ajustes.Modo.DIFICIL, 6, true]]:
+		var patrones := {}
+		for semilla in 30:
+			var d := Desafio.crear("cerradura", semilla, caso[0])
+			var patron: String = d.solucion_filas[0].get_slice("#", 0)
+			patrones[patron] = true
+			comprobar(patron.length() == caso[1] and d.invertir == caso[2])
+			comprobar(d.ejecutar_intento(d.solucion_filas)["resultado"] == "ACEPTA")
+		comprobar(patrones.size() > 5)
 
 
 func test_bateria() -> void:
@@ -449,3 +442,33 @@ func test_terminales_dinamicas() -> void:
 			comprobar(d.comprobar()["exito"], "%s/%d se resuelve" % [id, semilla])
 			vistos[str(d.solucion_filas)] = true
 		comprobar(vistos.size() > 5, "%s cambia entre partidas" % id)
+
+
+func test_cruce_colores() -> void:
+	var m := ProgramasTuring.cruce_multipista()
+	for haz in ProgramasTuring.GEMAS:
+		for mascara in ProgramasTuring.GEMAS:
+			for estado in ["0", "1", "_"]:
+				m.cargar([haz, mascara, estado])
+				var esperado: bool = estado == "0" or (estado == "1" and haz == mascara)
+				comprobar((m.ejecutar() == "ACEPTA") == esperado, str([haz, mascara, estado]))
+
+
+func test_reparto_botin() -> void:
+	var m := ProgramasTuring.reparto_multicinta()
+	var gemas := ProgramasTuring.GEMAS + ["F"]
+	for lote in palabras(gemas, 3):
+		for destinos in palabras(["<", ">", "v"], 3):
+			var datos := ["", "", ""]
+			var esperado := true
+			for i in lote.length():
+				datos[0] += lote[i] + destinos[i]
+				if destinos[i] in ["<", ">"]:
+					datos[1 if destinos[i] == "<" else 2] += lote[i]
+				esperado = esperado and ProgramasTuring.destino_botin(lote[i]) == destinos[i]
+			m.cargar(datos)
+			comprobar((m.ejecutar() == "ACEPTA") == esperado, str(datos))
+	m.cargar(["R<Zv", "R", ""])
+	comprobar(m.ejecutar() == "RECHAZA", "solo se descartan joyas falsas")
+	m.cargar(["R<", "RA", ""])
+	comprobar(m.ejecutar() == "RECHAZA", "no pueden sobrar joyas en ninguna bolsa")
