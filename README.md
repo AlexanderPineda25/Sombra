@@ -12,11 +12,11 @@ Todo el comportamiento del museo está hecho con modelos de la teoría de la com
 | Ciclo del radar | AFD de 4 estados (REPOSO → AVISO → BARRIDO → ANALISIS) | `automatas/definiciones.gd` |
 | Pantallas del juego | AFD de 7 estados (MENU, JUGANDO, PAUSA, TERMINAL, DERROTA, VICTORIA, FIN) | `escenas/main.gd` |
 | Diseño del guardia | Borrador de 7 estados minimizado a 6 | `automatas/afd.gd` → `minimizar()` |
-| Cerradura de la vitrina | **MT estándar** (verificador en zigzag de un acertijo de gemas, distinto en cada partida) | `turing/programas.gd` |
+| Cerradura de la vitrina | **MT estándar** (robot de la vitrina: verificador en zigzag de la copia w#w, o del espejo en Medio y Difícil) | `turing/programas.gd` |
 | Energía para correr | **MT estándar** (batería en unario: g gasta, c recarga, rechaza si está agotada) | `turing/programas.gd`, `juego/energia.gd` |
 | Central de alarmas | **MT estándar** (reconocedor de xⁿyⁿ con dos gemas al azar) | `turing/programas.gd` |
-| Puerta de la bóveda | **MT multicinta** (gira las gemas de A según B y compara con K escrita al revés: cabezales en sentidos opuestos) | `turing/programas.gd` |
-| Rejilla láser | **MT multipista** (1 cinta, 3 pistas: cada columna láser→máscara→objetivo forma una escalera en la rueda) | `turing/programas.gd` |
+| Puerta de la bóveda | **MT multicinta** (reparto del botín: 3 cintas, botín, bolsa izquierda y bolsa derecha; solo avanza la bolsa elegida) | `turing/programas.gd` |
+| Rejilla láser | **MT multipista** (cruce de la galería: 1 cinta con 3 pistas, haz, máscara y luz, que un solo cabezal lee a la vez) | `turing/programas.gd` |
 | Radar: correlación de sensores | **MT multicinta** (presencia × transpondedor → intrusos) | `turing/programas.gd` |
 | Radar: análisis de señales | **MT multipista** (busca la columna intruso=1, visión=1, oculto=0) | `turing/programas.gd` |
 | Niveles y patrullas | **Lenguaje SOMBRA**: analizador léxico generado (ER → AFN de Thompson → AFD por subconjuntos → AFD mínimo), analizador sintáctico LL(1) y análisis semántico | `lenguaje/`, `niveles/*.sombra` |
@@ -58,6 +58,8 @@ En **F1 › Lenguaje SOMBRA** (o **Consola** en la versión web) se ve el códig
 ## Descargar y jugar
 
 El juego está publicado en **[itch.io](https://steveelcrack.itch.io/sombra-robo-en-el-museo)** con descargables para **Windows** y **Linux**: descarga el ZIP de tu plataforma, extráelo y ejecuta `SOMBRA.exe` o `SOMBRA.x86_64`.
+
+**Video de demostración:** [youtu.be/H794ESjnpS8](https://youtu.be/H794ESjnpS8) (13:54).
 
 ## Cómo jugar desde el código
 
@@ -196,7 +198,7 @@ sombra_godot/
 ├── niveles/                   nivel1.sombra, nivel2.sombra, nivel3.sombra
 ├── turing/                    máquinas de Turing (lógica pura)
 │   ├── cinta.gd  maquina_turing.gd  mt_estandar.gd  mt_multicinta.gd  mt_multipista.gd
-│   └── programas.gd           las 11 máquinas del museo
+│   └── programas.gd           las máquinas del museo, del radar y de los tutoriales
 ├── automatas/                 AFD genérico, autómata de pila y tablas δ
 ├── juego/                     lógica del juego (sin dibujo)
 │   ├── mapa.gd  niveles.gd  partida.gd  config.gd  ajustes.gd
@@ -215,7 +217,8 @@ sombra_godot/
 ├── assets/                    sprites, texturas, luces y audio generados
 ├── herramientas/              generar_arte.py, generar_audio.py, sintesis.py, gramatica_musical.py
 ├── pruebas/                   pruebas automáticas, experimento y capturas
-└── docs/capturas/
+└── docs/                      artículo IEEE, presentaciones (pptx y pdf), derivaciones
+                               de la música, capturas/ y figuras/
 ```
 
 ## Pruebas
@@ -242,8 +245,11 @@ python3 herramientas/generar_audio.py
 
 | Documento | Contenido |
 |---|---|
-| [`Articulo_IEEE_SOMBRA.docx`](Articulo_IEEE_SOMBRA.docx) · [PDF](Articulo_IEEE_SOMBRA.pdf) | Informe en formato IEEE: problema, marco teórico (de expresiones regulares a máquinas de Turing, gramáticas estocásticas y sistemas L), metodología Scrum en 5 semanas, arquitectura e interfaz, resultados, discusión, conclusiones y 44 referencias. |
-| Sustentación (Canva) | Presentación de 15 minutos: equipo, problema, respaldo teórico, metodología, solución y video, código con los conceptos del curso, conclusiones y referencias. |
+| [Artículo IEEE (Word)](<docs/Articulo_IEEE_SOMBRA.docx>) · [PDF](<docs/Articulo_IEEE_SOMBRA.pdf>) | Informe en formato IEEE: problema, marco teórico (de expresiones regulares a máquinas de Turing, gramáticas estocásticas y sistemas L), metodología Scrum en 5 semanas, arquitectura e interfaz, resultados, discusión, conclusiones, 44 referencias y enlace al video. |
+| [Video de demostración](https://youtu.be/H794ESjnpS8) | Recorrido de 13:54 por los tres niveles, los estados de los guardias, el radar, los minijuegos de máquinas de Turing y la consola F1. |
+| [Sustentación (PowerPoint)](<docs/SOMBRA – Sustentación v2.pptx>) · [PDF](<docs/SOMBRA – Sustentación v2.pdf>) | Presentación de 15 minutos en 37 diapositivas: equipo, problema, respaldo teórico, metodología (Scrum, matriz RACI, backlog y cronograma), solución con capturas y video, el código de cada concepto del curso, pruebas, conclusiones y referencias, con notas del orador y tiempos. |
+| [Sustentación en Canva](https://canva.link/mn8hgpjwxnkokeq) · [PDF](<docs/SOMBRA Robo Museo.pdf>) | Versión resumida de la presentación en 17 diapositivas, con notas del orador. |
+| [Derivaciones de la música](<docs/musica_derivaciones.txt>) | Derivaciones de la gramática estocástica y del sistema L que generaron cada tema. |
 
 ## Metodología
 

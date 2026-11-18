@@ -1,3 +1,6 @@
 # Carpeta interna de Godot
 .godot/
 /export/
+
+# Archivos temporales de Word y PowerPoint mientras un documento está abierto
+~$*
