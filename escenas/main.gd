@@ -39,6 +39,7 @@ var flujo: AFD = Def.crear_afd_flujo()
 var partida: Partida
 var nivel := 0
 var consola: ConsolaSeguridad
+var boton_consola_web: Button
 var capa_tutorial: CanvasLayer
 var panel_tutorial: PanelTutorial
 var pistas_dadas := {}           ## pistas cortas ya mostradas en esta sesión
@@ -90,6 +91,8 @@ func _ready() -> void:
 		nivel = clampi(int(args[i + 1]), 1, Niveles.cantidad()) - 1
 		saltar_menu = nivel > 0
 	Ajustes.cargar()
+	if OS.has_feature("web"):
+		get_tree().root.gui_embed_subwindows = true
 	_armar_escena()
 	cargar(0, true)                       # fondo animado del menú
 	if saltar_menu:
@@ -196,9 +199,27 @@ func _armar_escena() -> void:
 	consola.name = "Consola"
 	consola.juego = self
 	add_child(consola)
+	if OS.has_feature("web"):
+		_crear_boton_consola_web()
 	var at := Atajos.new()
 	at.juego = self
 	add_child(at)
+
+
+func _crear_boton_consola_web() -> void:
+	var capa := CanvasLayer.new()
+	capa.layer = 5
+	capa.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(capa)
+	boton_consola_web = Button.new()
+	boton_consola_web.text = "Consola"
+	boton_consola_web.position = Vector2(Config.ANCHO - 112, Config.ALTO - 31)
+	boton_consola_web.size = Vector2(100, 27)
+	boton_consola_web.focus_mode = Control.FOCUS_NONE
+	boton_consola_web.pressed.connect(func():
+		if not capa_tutorial.visible:
+			consola.alternar())
+	capa.add_child(boton_consola_web)
 
 
 # ---------------------------------------------------------------------- #
@@ -563,12 +584,16 @@ func mostrar_tutorial(id: String) -> void:
 		consola.cerrar()
 	panel_tutorial.abrir(id)
 	capa_tutorial.visible = true
+	if boton_consola_web:
+		boton_consola_web.hide()
 	get_tree().paused = true
 
 
 func cerrar_tutorial() -> void:
 	Ajustes.marcar_tutorial(panel_tutorial.id)
 	capa_tutorial.visible = false
+	if boton_consola_web:
+		boton_consola_web.show()
 	get_tree().paused = false
 
 

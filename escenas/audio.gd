@@ -64,6 +64,7 @@ const FUNDIDO_TEMA := 0.45         ## segundos para bajar (y luego subir) al cam
 
 var musica: AudioStreamPlayer
 var sync: AudioStreamSynchronized
+var capas_web: Array[AudioStreamPlayer] = []
 var volumen: Array = [0.0, 0.0, 0.0, 0.0]   ## lineal, el actual de cada capa
 var estado := "MENU"
 var cambios_estado := 0                     ## para pruebas y la consola
@@ -95,12 +96,23 @@ func preparar() -> void:
 		return
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_buses()
-	sync = AudioStreamSynchronized.new()
-	sync.stream_count = CAPAS.size()
-	musica = AudioStreamPlayer.new()
-	musica.stream = sync
-	musica.bus = "Musica"
-	add_child(musica)
+	if OS.has_feature("web"):
+		# En Web sin hilos, Web Audio mezcla muestras sin depender de cada
+		# fotograma de Godot. Todas las capas arrancan en el mismo fotograma.
+		for i in CAPAS.size():
+			var capa := AudioStreamPlayer.new()
+			capa.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE
+			capa.bus = "Musica"
+			add_child(capa)
+			capas_web.append(capa)
+		musica = capas_web[0]
+	else:
+		sync = AudioStreamSynchronized.new()
+		sync.stream_count = CAPAS.size()
+		musica = AudioStreamPlayer.new()
+		musica.stream = sync
+		musica.bus = "Musica"
+		add_child(musica)
 	fijar_tema("n1")
 	remate = AudioStreamPlayer.new()
 	remate.bus = "Musica"
@@ -123,7 +135,8 @@ func preparar() -> void:
 func _buses() -> void:
 	for nombre in ["Musica", "Efectos"]:
 		if AudioServer.get_bus_index(nombre) == -1:
-			AudioServer.add_bus()
+			# Ampliar al final conserva los índices de los buses de Web Audio.
+			AudioServer.bus_count += 1
 			var i := AudioServer.bus_count - 1
 			AudioServer.set_bus_name(i, nombre)
 			AudioServer.set_bus_send(i, "Master")
@@ -159,10 +172,30 @@ func _aplicar_tema(clave: String) -> void:
 	tema_actual = clave
 	_tema_pendiente = ""
 	for i in CAPAS.size():
-		sync.set_sync_stream(i, _cargar_en_bucle("res://assets/audio/musica_%s_%s.ogg" % [clave, CAPAS[i]]))
-		sync.set_sync_stream_volume(i, linear_to_db(maxf(volumen[i], 0.0001)))
-	musica.play()
+		var pista := _cargar_en_bucle("res://assets/audio/musica_%s_%s.ogg" % [clave, CAPAS[i]])
+		if sync != null:
+			sync.set_sync_stream(i, pista)
+		else:
+			capas_web[i].stream = pista
+			# Decodifica las cuatro pistas antes de arrancar la primera.
+			if not AudioServer.is_stream_registered_as_sample(pista):
+				AudioServer.register_stream_as_sample(pista)
+		_aplicar_volumen_capa(i)
+	if sync != null:
+		musica.play()
+	else:
+		for capa in capas_web:
+			capa.play()
 	reinicios_musica += 1
+
+
+func _aplicar_volumen_capa(i: int) -> void:
+	if sync != null:
+		sync.set_sync_stream_volume(i, linear_to_db(maxf(volumen[i], 0.0001)))
+	else:
+		var db := linear_to_db(maxf(volumen[i] * _nivel_tema, 0.0001))
+		if not is_equal_approx(capas_web[i].volume_db, db):
+			capas_web[i].volume_db = db
 
 
 ## Estado del reproductor (consola F1 y pruebas de continuidad).
@@ -236,12 +269,13 @@ func _process(dt: float) -> void:
 			_aplicar_tema(_tema_pendiente)
 	else:
 		_nivel_tema = move_toward(_nivel_tema, 1.0, dt / FUNDIDO_TEMA)
-	musica.volume_db = linear_to_db(maxf(_nivel_tema, 0.0001))
+	if sync != null:
+		musica.volume_db = linear_to_db(maxf(_nivel_tema, 0.0001))
 	for i in CAPAS.size():
 		var meta := objetivo(i)
 		var vel := 1.0 / (FUNDIDO_SUBIDA if meta > volumen[i] else FUNDIDO_BAJADA)
 		volumen[i] = move_toward(volumen[i], meta, dt * vel)
-		sync.set_sync_stream_volume(i, linear_to_db(maxf(volumen[i], 0.0001)))
+		_aplicar_volumen_capa(i)
 	# ambiente del museo: solo durante la partida, más bajo si hay persecución
 	var meta_amb := AMBIENTE_DB if estado in ["EXPLORACION", "SOSPECHA", "BUSQUEDA", "TERMINAL"] else -60.0
 	ambiente.volume_db = move_toward(ambiente.volume_db, meta_amb, dt * 20.0)

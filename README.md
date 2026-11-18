@@ -65,6 +65,20 @@ En el menú, **1 · 2 · 3** elige el nivel. Desde la terminal: `godot --path . 
 
 Si exportas el juego, añade `*.sombra` a los filtros de archivos no recurso del preajuste de exportación (los niveles se leen como texto).
 
+## Exportación y publicación
+
+Con las plantillas de **Godot 4.7.2 estable** instaladas, usa **Proyecto → Exportar** y genera las compilaciones de lanzamiento en `export/`.
+
+| Perfil | Salida | Paquete |
+|---|---|---|
+| Web | `export/web/index.html` | `SOMBRA-Web.zip` con `index.html` en la raíz y los demás archivos generados, excepto los `.import` |
+| Windows Desktop | `export/windows/SOMBRA.exe` | `SOMBRA-Windows-x86_64.zip` con `SOMBRA.exe` y `SOMBRA.pck` |
+| Linux | `export/linux/SOMBRA.x86_64` | `SOMBRA-Linux-x86_64.zip` con `SOMBRA.x86_64` y `SOMBRA.pck` |
+
+Los tres perfiles incluyen `niveles/*.sombra`, que el juego lee al cargar los mapas. Para comprobar el navegador en local, sirve `export/web` por HTTP con `python -m http.server 8000 --directory export/web` y abre `http://localhost:8000`. En Linux, aplica `chmod +x SOMBRA.x86_64` antes de crear el ZIP para que el permiso se conserve al extraerlo.
+
+En itch.io, usa una página de tipo **HTML Game**. Marca el ZIP web como jugable en el navegador y etiqueta los dos ZIP de escritorio con su plataforma. Prueba las tres compilaciones en la vista previa del borrador antes de publicarlo.
+
 ## Controles
 
 | Tecla | Acción |
@@ -126,7 +140,7 @@ Una máquina de Turing real resuelve cada reto. Un lector recorre toda la vitrin
 
 ## Consola de seguridad (F1)
 
-Ventana nativa (`display/window/subwindows/embed_subwindows=false`), única, redimensionable, que se abre al lado del juego. **No pausa el juego**: corre en paralelo y muestra en vivo cada cambio de estado; el foco se queda en el juego para seguir jugando mientras se observa.
+En escritorio, **F1** abre una ventana nativa redimensionable al lado del juego. En el navegador, **Consola** abre el panel dentro del juego y **Cerrar** lo oculta. La simulación sigue actualizándose mientras consultas el panel.
 
 - **Guardias · AFD**: tarjeta por guardia, diagrama con todas las transiciones, estado actual, inicial, final, última transición resaltada y la tabla δ completa.
 - **Máquinas de Turing**: la última máquina estándar, multicinta y multipista usada (terminal o radar) y la batería de energía, con cintas/pistas, cabezales, estado y últimas operaciones.

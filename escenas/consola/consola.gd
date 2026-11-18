@@ -21,6 +21,7 @@ const FILTROS := {
 }
 
 var juego
+var embebida := OS.has_feature("web")
 var pestanas: TabContainer
 var vista_afd: VistaAFD
 var vista_radar: VistaRadar
@@ -49,8 +50,13 @@ class Atajos:
 
 func _init() -> void:
 	title = "SOMBRA · Consola de seguridad del museo"
-	size = Vector2i(1080, 720)
-	min_size = Vector2i(780, 560)
+	if embebida:
+		size = Vector2i(Config.ANCHO - 24, Config.ALTO - 60)
+		min_size = Vector2i(560, 400)
+		unresizable = true
+	else:
+		size = Vector2i(1080, 720)
+		min_size = Vector2i(780, 560)
 	visible = false
 	wrap_controls = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -80,7 +86,13 @@ func _ready() -> void:
 	var ayuda := Label.new()
 	ayuda.text = "F1 / Esc: cerrar"
 	ayuda.add_theme_color_override("font_color", T.SUAVE)
-	cab.add_child(ayuda)
+	if embebida:
+		var cerrar_boton := Button.new()
+		cerrar_boton.text = "Cerrar"
+		cerrar_boton.pressed.connect(cerrar)
+		cab.add_child(cerrar_boton)
+	else:
+		cab.add_child(ayuda)
 
 	pestanas = TabContainer.new()
 	pestanas.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -127,6 +139,14 @@ func abrir(pestana := -1, enfocar := false) -> void:
 		aperturas += 1
 		# al lado de la ventana del juego si cabe en la pantalla; si no, encima
 		var raiz := get_tree().root
+		if embebida:
+			var area := Vector2i(raiz.get_visible_rect().size)
+			size = (area - Vector2i(24, 60)).clamp(min_size, Vector2i(Config.ANCHO, Config.ALTO))
+			position = Vector2i((area.x - size.x) / 2, 36)
+			show()
+			_enlazar()
+			grab_focus()
+			return
 		var pantalla := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
 		var al_lado := raiz.position + Vector2i(raiz.size.x + 8, 0)
 		if pantalla.size.x > 0 and al_lado.x + size.x <= pantalla.end.x:
@@ -135,7 +155,7 @@ func abrir(pestana := -1, enfocar := false) -> void:
 			position = raiz.position + Vector2i(maxi(0, raiz.size.x - size.x) / 2 + 40, 60)
 		show()
 	_enlazar()
-	if enfocar:
+	if enfocar or embebida:
 		grab_focus()
 	else:
 		get_tree().root.grab_focus.call_deferred()
@@ -149,7 +169,7 @@ func cerrar() -> void:
 ## El ladrón no se mueve mientras se escribe/hace clic en la consola (si el
 ## foco está en el juego, se juega normalmente con la consola abierta).
 func bloquea_jugador() -> bool:
-	return visible and has_focus()
+	return visible and (embebida or has_focus())
 
 
 func _enlazar() -> void:

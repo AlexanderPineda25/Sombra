@@ -88,7 +88,8 @@ func _hud(p: Partida) -> void:
 			aviso = "Sospechan..."
 			col = Color8(255, 200, 80)
 	Dibujo.texto(self, aviso, Vector2(Config.ANCHO - 16 - Dibujo.ancho_texto(aviso, 22, true), y0 + 10), 22, col, false, true)
-	Dibujo.texto(self, "F1: consola", Vector2(Config.ANCHO - 100, y0 + 40), 15, Config.TEXTO_SUAVE)
+	if not OS.has_feature("web"):
+		Dibujo.texto(self, "F1: consola", Vector2(Config.ANCHO - 100, y0 + 40), 15, Config.TEXTO_SUAVE)
 	# radar: cuenta atrás del próximo escaneo
 	if not p.radares.is_empty() and not p.demo:
 		var r: Radar = p.radares[0]
@@ -220,6 +221,7 @@ func _menu(tiempo: float) -> void:
 
 	var lineas := [
 		"WASD / flechas: moverte    C: agacharte    Shift: correr    Clic o Q: moneda",
+		"E: terminal    Esc: pausa    Consola: AFD, MT, radar y lenguaje" if OS.has_feature("web") else
 		"E: terminal (máquinas de Turing)    Esc: pausa    F1: consola (AFD, MT, radar, lenguaje)",
 	]
 	for i in lineas.size():
