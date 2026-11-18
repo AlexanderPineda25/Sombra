@@ -30,6 +30,10 @@ const CapaInterfaz := preload("res://escenas/interfaz.gd")
 const UITerminal := preload("res://escenas/terminal_ui.gd")
 
 const T := Config.TILE
+## Desafíos que se juegan como minijuego de habilidad (los demás usan el panel clásico).
+const MINIJUEGOS := {"cerradura": preload("res://escenas/minijuegos/mj_cerradura.gd"),
+		"laser": preload("res://escenas/minijuegos/mj_laser.gd"), "boveda": preload("res://escenas/minijuegos/mj_boveda.gd")}
+var minijuegos := {}             ## id -> Minijuego
 
 var flujo: AFD = Def.crear_afd_flujo()
 var partida: Partida
@@ -155,6 +159,13 @@ func _armar_escena() -> void:
 	capa_term.name = "Terminal"
 	capa_term.layer = 3
 	add_child(capa_term)
+	# los tres minijuegos de MT; el visor técnico (terminal_ui) se dibuja encima
+	for id in MINIJUEGOS:
+		var mj: Minijuego = MINIJUEGOS[id].new()
+		mj.name = "Minijuego_" + id
+		mj.juego = self
+		capa_term.add_child(mj)
+		minijuegos[id] = mj
 	terminal_ui = Control.new()
 	terminal_ui.set_script(UITerminal)
 	terminal_ui.juego = self
@@ -354,6 +365,10 @@ func _oclusor(r: Rect2) -> LightOccluder2D:
 func _al_abrir_terminal() -> void:
 	partida.jugador.hacer("interactuar", 0.0)
 	audio.sonar("terminal")
+	var id: String = terminal_abierta["desafio"].id
+	if minijuegos.has(id):
+		minijuegos[id].abrir(terminal_abierta)      # explicación técnica opcional (V / F1)
+		return
 	terminal_ui.abrir(terminal_abierta)
 	var variante: String = terminal_abierta["desafio"].variante
 	if not Ajustes.tutorial_visto(variante):
@@ -363,7 +378,17 @@ func _al_abrir_terminal() -> void:
 func _al_cerrar_terminal() -> void:
 	partida.jugador.accion = ""
 	terminal_ui.cerrar()
+	for mj in minijuegos.values():
+		mj.cerrar()
 	terminal_abierta = null
+
+
+## El minijuego abierto (o null).
+func minijuego_abierto() -> Minijuego:
+	for mj in minijuegos.values():
+		if mj.visible:
+			return mj
+	return null
 
 
 ## Llamado por la interfaz de la terminal cuando la máquina se detiene.

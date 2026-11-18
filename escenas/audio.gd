@@ -14,7 +14,17 @@
 ##   BUSQUEDA     base + tensión + búsqueda  (ALERTA o BUSQUEDA)
 ##   PERSECUCION  todas las capas            (PERSECUCION)
 ##   ALARMA       búsqueda + persecución     (alarma o alerta global activa)
-##   VICTORIA / DERROTA: la música se apaga y suena un remate.
+##   VICTORIA / DERROTA: la base baja a un fondo suave y suena un remate.
+##
+## Continuidad (corrección del corte de música): las pistas duran ~18-21 s y
+## se importaban con loop=false, así que la música callaba a los pocos
+## segundos de cada nivel. Ahora cada capa y el ambiente se importan con
+## loop=true y, además, `_cargar_en_bucle` fuerza el bucle al cargarlas (los
+## .import no viajaban con el repositorio porque estaban en .gitignore).
+## El reproductor vive en este nodo, hijo de Main, que nunca se destruye (el
+## juego no cambia de escena: niveles y terminales se rehacen dentro de
+## Main), y tiene PROCESS_MODE_ALWAYS: sigue sonando con el árbol en pausa.
+## Solo se llama a play() al preparar y al cambiar de tema de nivel.
 ##
 ## Efectos: un grupo de reproductores reutilizables con límite de polifonía y
 ## un tiempo mínimo entre repeticiones del mismo sonido, para que las
@@ -31,8 +41,8 @@ const MEZCLA := {
 	"PERSECUCION": [0.55, 0.3, 0.75, 1.0],
 	"ALARMA":      [0.5, 0.45, 1.0, 0.8],
 	"TERMINAL":    [0.7, 0.35, 0.0, 0.0],
-	"VICTORIA":    [0.0, 0.0, 0.0, 0.0],
-	"DERROTA":     [0.0, 0.0, 0.0, 0.0],
+	"VICTORIA":    [0.3, 0.0, 0.0, 0.0],
+	"DERROTA":     [0.25, 0.0, 0.0, 0.0],
 }
 ## Segundos que tarda un fundido completo (subir es más rápido que bajar).
 const FUNDIDO_SUBIDA := 0.9
@@ -50,6 +60,7 @@ const ESPERA := {
 }
 const TEMAS := ["n1", "n2", "n3"]
 const AMBIENTE_DB := -15.0
+const FUNDIDO_TEMA := 0.45         ## segundos para bajar (y luego subir) al cambiar de tema
 
 var musica: AudioStreamPlayer
 var sync: AudioStreamSynchronized
@@ -69,6 +80,9 @@ var tema_actual := ""
 var t_paso := 0.0
 var t_paso_guardia := 0.0
 var _cola: Array = []                       ## [instante, nombre, tono]
+var _tema_pendiente := ""                   ## tema que entra cuando termina el fundido
+var _nivel_tema := 1.0                      ## 0..1, fundido del reproductor al cambiar de tema
+var reinicios_musica := 0                   ## veces que se llamó play() (no debe crecer al jugar)
 
 
 func _ready() -> void:
@@ -92,7 +106,7 @@ func preparar() -> void:
 	remate.bus = "Musica"
 	add_child(remate)
 	ambiente = AudioStreamPlayer.new()
-	ambiente.stream = load("res://assets/audio/ambiente_museo.ogg")
+	ambiente.stream = _cargar_en_bucle("res://assets/audio/ambiente_museo.ogg")
 	ambiente.bus = "Efectos"
 	ambiente.volume_db = -80.0
 	add_child(ambiente)
@@ -116,17 +130,48 @@ func _buses() -> void:
 
 
 # ------------------------------------------------------------------ música
-## Cambia el tema (uno por nivel). Las cuatro capas se reemplazan juntas y
-## vuelven a empezar sincronizadas; los volúmenes actuales se conservan.
+## Carga una pista y garantiza que se repita sin fin.
+static func _cargar_en_bucle(ruta: String) -> AudioStream:
+	var st: AudioStream = load(ruta)
+	if st is AudioStreamOggVorbis or st is AudioStreamMP3:
+		st.loop = true
+	elif st is AudioStreamWAV:
+		st.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		st.loop_end = int(st.get_length() * st.mix_rate)
+	return st
+
+
+## Cambia el tema (uno por nivel). Si ya suena otro, baja el reproductor,
+## cambia las cuatro capas juntas (vuelven a empezar sincronizadas) y lo
+## vuelve a subir. Si es el mismo tema no hace nada: la música sigue donde
+## iba (reintentar un nivel o entrar a una terminal no la reinicia).
 func fijar_tema(clave: String) -> void:
-	if clave == tema_actual or not clave in TEMAS:
+	var destino := _tema_pendiente if _tema_pendiente != "" else tema_actual
+	if clave == destino or not clave in TEMAS:
 		return
+	if tema_actual == "" or not musica.playing:
+		_aplicar_tema(clave)
+	else:
+		_tema_pendiente = clave
+
+
+func _aplicar_tema(clave: String) -> void:
 	tema_actual = clave
-	musica.stop()
+	_tema_pendiente = ""
 	for i in CAPAS.size():
-		sync.set_sync_stream(i, load("res://assets/audio/musica_%s_%s.ogg" % [clave, CAPAS[i]]))
+		sync.set_sync_stream(i, _cargar_en_bucle("res://assets/audio/musica_%s_%s.ogg" % [clave, CAPAS[i]]))
 		sync.set_sync_stream_volume(i, linear_to_db(maxf(volumen[i], 0.0001)))
 	musica.play()
+	reinicios_musica += 1
+
+
+## Estado del reproductor (consola F1 y pruebas de continuidad).
+func diagnostico() -> Dictionary:
+	var bus := AudioServer.get_bus_index("Musica")
+	return {"tema": tema_actual, "sonando": musica.playing, "pausada": musica.stream_paused,
+			"posicion": musica.get_playback_position(), "bus": musica.bus,
+			"bus_db": AudioServer.get_bus_volume_db(bus), "bus_mute": AudioServer.is_bus_mute(bus),
+			"reinicios": reinicios_musica, "estado": estado}
 
 
 ## Estado musical a partir del flujo del juego y de la partida.
@@ -184,6 +229,14 @@ func objetivo(i: int) -> float:
 func _process(dt: float) -> void:
 	reloj += dt
 	_volumen_buses()
+	# fundido del cambio de tema: baja, cambia las capas y vuelve a subir
+	if _tema_pendiente != "":
+		_nivel_tema = move_toward(_nivel_tema, 0.0, dt / FUNDIDO_TEMA)
+		if _nivel_tema <= 0.0:
+			_aplicar_tema(_tema_pendiente)
+	else:
+		_nivel_tema = move_toward(_nivel_tema, 1.0, dt / FUNDIDO_TEMA)
+	musica.volume_db = linear_to_db(maxf(_nivel_tema, 0.0001))
 	for i in CAPAS.size():
 		var meta := objetivo(i)
 		var vel := 1.0 / (FUNDIDO_SUBIDA if meta > volumen[i] else FUNDIDO_BAJADA)

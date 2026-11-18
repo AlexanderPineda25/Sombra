@@ -23,6 +23,12 @@ var regla := {}               ## gema de la vitrina -> gema de la clave
 var invertir := false
 var gema_x := ""              ## central de alarmas: L = { xⁿ yⁿ }
 var gema_y := ""
+var ejemplos: Array = []      ## cerradura: [[vitrina, clave], ...] que la MT ACEPTA (fase de observación)
+## Último intento formal (lo llenan los minijuegos y lo repite el visor técnico):
+## {filas: Array de contenidos, transiciones: Array, resultado: String, pasos: int, n: int}
+var ultimo_intento := {}
+
+const MAX_PASOS := 5000       ## límite de seguridad: más pasos = error técnico, no rechazo
 
 const NOMBRE_GEMA := {"R": "Rubí", "Z": "Zafiro", "E": "Esmeralda", "A": "Ámbar"}
 const RUEDA := {"R": "Z", "Z": "E", "E": "A", "A": "R"}
@@ -45,6 +51,15 @@ const ACERTIJOS := {
 }
 
 
+## Número de gemas de la cerradura según la dificultad (fácil 3, normal 4, difícil 5).
+static func largo_cerradura() -> int:
+	if Ajustes.dificultad < 0.8:
+		return 3
+	if Ajustes.dificultad > 1.2:
+		return 5
+	return 4
+
+
 ## `semilla` < 0 elige un acertijo al azar (cada partida es distinta).
 static func crear(p_id: String, semilla := -1) -> Desafio:
 	var d := Desafio.new()
@@ -63,11 +78,33 @@ static func crear(p_id: String, semilla := -1) -> Desafio:
 			var datos: Array = ACERTIJOS[d.acertijo]
 			d.regla = datos[0]
 			d.invertir = datos[1]
+			var n_gemas := largo_cerradura()
 			var vitrina := ""
 			while vitrina == "" or (d.invertir and d.regla == IDENTIDAD and vitrina == vitrina.reverse()):
 				vitrina = ""
-				for i in 4:
+				for i in n_gemas:
 					vitrina += ProgramasTuring.GEMAS[rng.randi() % 4]
+			# dos ejemplos de la regla para la fase de observación: cada uno es
+			# una palabra que el verificador ACEPTA (se comprueba con la MT)
+			var verificador := ProgramasTuring.verificador_clave(d.regla, d.invertir)
+			var intentos_ej := 0
+			while d.ejemplos.size() < 2 and intentos_ej < 200:
+				intentos_ej += 1
+				var p := ""
+				for i in 3:
+					p += ProgramasTuring.GEMAS[rng.randi() % 4]
+				if p == vitrina.substr(0, 3) or (d.ejemplos.size() == 1 and d.ejemplos[0][0] == p):
+					continue
+				if d.invertir and d.regla == IDENTIDAD and p == p.reverse():
+					continue                     # un palíndromo no deja ver el espejo
+				var k := ""
+				for g in p:
+					k += d.regla[g]
+				if d.invertir:
+					k = k.reverse()
+				verificador.cargar(p + "#" + k)
+				if verificador.ejecutar(MAX_PASOS) == "ACEPTA":
+					d.ejemplos.append([p, k])
 			d.titulo = "Cerradura de la vitrina"
 			d.variante = "estandar"
 			d.efecto = "puerta"
@@ -235,6 +272,63 @@ func comprobar() -> Dictionary:
 		"laser":
 			msg = "La máscara %s la escalera." % ("completa" if acepto else "no completa")
 	return {"exito": exito, "mensaje": msg}
+
+
+## Carga `contenidos` (uno por fila) en la máquina del desafío, la reinicia y
+## la ejecuta hasta que se detenga, con límite de pasos. Guarda TODAS las
+## transiciones ejecutadas como `ultimo_intento` (el visor las repite).
+##   resultado: "ACEPTA" | "RECHAZA" | "ERROR" (no se detuvo: error técnico)
+func ejecutar_intento(contenidos: Array) -> Dictionary:
+	return ejecutar_hasta(contenidos, func(_m): return false)
+
+
+## Igual, pero se detiene antes si `parar.call(maquina)` es verdadero (se usa
+## para validar por partes: «la máquina ya comparó la columna i»). En ese caso
+## el resultado es "EN CURSO" y la máquina queda en ese punto de su ejecución.
+func ejecutar_hasta(contenidos: Array, parar: Callable) -> Dictionary:
+	for i in filas.size():
+		filas[i]["contenido"] = contenidos[i]
+	construir()
+	var trans := []
+	while not maquina.detenida() and trans.size() < MAX_PASOS and not parar.call(maquina):
+		trans.append(maquina.paso())
+	var res := "EN CURSO"
+	if maquina.detenida():
+		res = maquina.resultado()
+	elif trans.size() >= MAX_PASOS:
+		res = "ERROR"
+	registrar_intento(contenidos, trans, res)
+	return ultimo_intento
+
+
+func registrar_intento(contenidos: Array, trans: Array, res: String) -> void:
+	ultimo_intento = {"filas": contenidos.duplicate(), "transiciones": trans.duplicate(true), "resultado": res,
+			"pasos": trans.size(), "n": int(ultimo_intento.get("n", 0)) + 1}
+
+
+## Copia de solo lectura para el visor técnico: misma máquina, misma entrada,
+## sin tocar el desafío en juego (abrir el visor no cambia el resultado).
+func copia_para_visor(contenidos: Array) -> Desafio:
+	var c := Desafio.new()
+	c.id = id
+	c.titulo = titulo
+	c.variante = variante
+	c.efecto = efecto
+	c.objetivo = objetivo
+	c.leccion = leccion
+	c.pista_ayuda = pista_ayuda
+	c.acertijo = acertijo
+	c.regla = regla
+	c.invertir = invertir
+	c.gema_x = gema_x
+	c.gema_y = gema_y
+	c.filas = filas.duplicate(true)
+	for i in c.filas.size():
+		c.filas[i]["contenido"] = contenidos[i]
+		c.filas[i]["editable"] = false
+	c.solucion_filas = contenidos.duplicate()
+	c.construir()
+	return c
 
 
 ## La entrada que resuelve cada desafío (para las pruebas automáticas).

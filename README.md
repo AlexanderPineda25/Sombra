@@ -78,7 +78,7 @@ Si exportas el juego, añade `*.sombra` a los filtros de archivos no recurso del
 | Esc | pausa / salir de la terminal |
 | **F1** | abrir / cerrar la consola de seguridad (ventana independiente) |
 
-**En una terminal:** clic sobre las casillas subrayadas (o el teclado) para escribir la entrada · **Espacio** ejecutar/pausar · **N** un paso · **R** reiniciar · **Esc** salir.
+**En una terminal:** los controles de cada minijuego aparecen al abrirla (ver «Minijuegos de las terminales»). En el panel clásico y en el visor técnico: **Espacio** ejecutar/pausar · **N** un paso · **R** reiniciar · **Esc** salir.
 
 ## Ocultamiento
 
@@ -94,6 +94,24 @@ Si exportas el juego, añade `*.sombra` a los filtros de archivos no recurso del
 - Corriendo te oye a 5,5 casillas y pasa a ALERTA (va hacia ti).
 - Agachado u oculto no te oye.
 
+## Minijuegos de las terminales (máquinas de Turing)
+
+Tres terminales son **retos de habilidad**; la decisión lógica la toma siempre la máquina de Turing real del desafío (`Desafio.ejecutar_intento` / `ejecutar_hasta`, con límite de `MAX_PASOS`). Godot solo gestiona lo físico (tiempo, timing, colisión con el haz) y lo distingue sin ambigüedad:
+
+| Tipo de fallo | Causa | Consecuencia |
+|---|---|---|
+| **Físico** | mal timing, haz encendido, rotor atascado, reloj agotado | `Partida.fallo_fisico`: ruido, **no** cuenta como rechazo de la MT |
+| **Lógico** | la MT se detuvo en el estado de rechazo | `fallar_terminal`: pitido, intento lógico, pista gradual |
+| **Técnico** | la MT no se detuvo en `MAX_PASOS` pasos | aviso de error del simulador; no penaliza |
+
+Cada minijuego empieza con una indicación breve y un **ensayo sin castigo**. Comunes: **V** ver la máquina, **P** pausa, **T** modo accesible (sin reloj, más lento y más tolerante), **Esc** volver al museo.
+
+- **Cerradura de la vitrina · «El patrón del joyero»** (MT estándar, 1 cinta, 1 cabezal). Dos ejemplos que la propia MT acepta muestran la regla (rueda, rivales, espejo o doble cerrojo). Un disco giratorio por gema de la clave: **← →** elegir disco, **↑ ↓** sentido de giro, **Espacio**/clic fijar cuando la gema está en la ventana verde, **Retroceso** soltar. Al fijar todos se ejecuta `vitrina#clave` en la MT; si rechaza, el disco culpable es el que señala la posición donde se detuvo el cabezal. 3/4/5 gemas según la dificultad.
+- **Rejilla láser · «Cruce sincronizado»** (MT multipista, 1 cinta de 3 pistas, 1 cabezal). Pasillo con un haz por columna que se enciende por ciclos. **← →/A D** moverse, **1-4** o **Q E** máscara, **F/Shift** escáner (3 cargas). Al cruzar con el haz apagado el sensor escribe la máscara en la pista 2 de la columna bajo el cabezal y la MT da **un paso real**; el ladrón siempre está en el refugio de la columna del cabezal. Máscara incorrecta = rechazo lógico y el checkpoint se restaura repitiendo la ejecución real; en la salida la MT termina su programa y se confirma con una ejecución completa.
+- **Puerta de la bóveda · «Sincronía de los tres mecanismos»** (MT multicinta, 3 cintas, 3 cabezales). El sensor A muestra su gema a destellos, el lector K empieza en el extremo derecho (fase `q0` real: `S,S,R`) y retrocede; **Espacio** frena el rotor B en los pasos de giro (R=0, Z=1, E=2, A=3) y **Enter** confirma cuando el anillo de K está en verde. Cada ronda ejecuta la MT desde `q0` hasta comparar esa columna (`R,R,L`); al final, ejecución completa y apertura gradual de la puerta.
+
+**Visor técnico (V):** reutiliza el panel de cintas/estados/transiciones con Ejecutar, Paso, Reiniciar y Velocidad sobre una **copia** con la entrada del último intento; repite las mismas transiciones y comprueba que coinciden con las registradas en el juego. Abrirlo o cerrarlo no cambia el desafío. La **central de alarmas** (xⁿyⁿ) sigue usando el panel clásico.
+
 ## Terminales con gemas
 
 Todas las terminales usan gemas (Rubí, Zafiro, Esmeralda, Ámbar; teclas 1-4 o clic) y cambian en cada partida:
@@ -104,7 +122,7 @@ Todas las terminales usan gemas (Rubí, Zafiro, Esmeralda, Ámbar; teclas 1-4 o 
 
 ### Cerradura de la vitrina (acertijo de gemas)
 
-En cada partida la vitrina muestra 4 gemas al azar (Rubí, Zafiro, Esmeralda, Ámbar) y un acertijo: **espejo** (las mismas gemas al revés), **rueda** (cada gema por la siguiente: R→Z→E→A→R), **rivales** (Rubí↔Esmeralda, Zafiro↔Ámbar) o **doble cerrojo** (rueda y al revés). Escribes la clave tras el `#` (clic o teclas 1-4) y una MT estándar la verifica en zigzag: marca una gema de la vitrina, la recuerda en su estado (`lleva_R`, `lleva_Z`...), cruza el `#` y comprueba la gema de la clave.
+En cada partida la vitrina muestra 3, 4 o 5 gemas al azar (según la dificultad) (Rubí, Zafiro, Esmeralda, Ámbar) y un acertijo: **espejo** (las mismas gemas al revés), **rueda** (cada gema por la siguiente: R→Z→E→A→R), **rivales** (Rubí↔Esmeralda, Zafiro↔Ámbar) o **doble cerrojo** (rueda y al revés). La clave se alinea con los discos del minijuego y una MT estándar la verifica en zigzag: marca una gema de la vitrina, la recuerda en su estado (`lleva_R`, `lleva_Z`...), cruza el `#` y comprueba la gema de la clave.
 
 ## Consola de seguridad (F1)
 
@@ -119,7 +137,7 @@ Ventana nativa (`display/window/subwindows/embed_subwindows=false`), única, red
 
 ## Tutoriales interactivos
 
-Aparecen la primera vez que usas una terminal de cada tipo (estándar en el nivel 1, multipista en el 2, multicinta en el 3) y se pueden repetir desde F1 › Tutoriales. Cada uno tiene simulaciones paso a paso de máquinas reales, ejercicios con retroalimentación y, en el de multipista, la comparación con la multicinta. Las pistas cortas (radar, arbustos) aparecen una vez durante el juego.
+Son la explicación técnica opcional: se abren desde F1 › Tutoriales (y solos la primera vez que usas la central de alarmas). Cada uno tiene simulaciones paso a paso de máquinas reales, ejercicios con retroalimentación y, en el de multipista, la comparación con la multicinta. Las pistas cortas (radar, arbustos) aparecen una vez durante el juego.
 
 ## Música y sonido
 
@@ -128,6 +146,7 @@ Todo el audio es original y se sintetiza con `herramientas/generar_audio.py` (pi
 - **Un tema por nivel**: vestíbulo en re dórico a 92 BPM con piano eléctrico y escobillas; galería en sol menor armónico a 100 BPM con vibráfono; bóveda en mi frigio a 108 BPM con campanas.
 - **Composición con lenguajes formales**: cada frase de la melodía es una derivación de una **gramática libre de contexto estocástica** (FRASE → PREGUNTA RESPUESTA, MOTIVO, ECO, CADENCIA…), y los ritmos de búsqueda salen de un **sistema L** (A → AB, B → A: la palabra de Fibonacci). Las derivaciones quedan en `docs/musica_derivaciones.txt`.
 - **Música adaptativa**: cuatro capas sincronizadas (`AudioStreamSynchronized`) se mezclan con fundidos según el peor estado de los AFD: exploración, sospecha, búsqueda, persecución, alarma; remates de victoria y derrota.
+- **Continuidad**: las capas y el ambiente se importan con `loop=true` (los `.import` ya se versionan) y `GestorAudio._cargar_en_bucle` lo garantiza al cargarlas. El gestor vive en `Main`, que nunca se destruye, con `PROCESS_MODE_ALWAYS` (suena en pausa); solo llama a `play()` al cambiar de tema de nivel, con un fundido corto. Terminales, fallos, reintentos y pausa no reinician la música; el volumen de F1 › Ajustes manda.
 - **Ambiente y pasos**: tono de sala del museo, pasos del ladrón (no suenan agachado) y botas del guardia más cercano, más fuertes cuanto más cerca está.
 - Las operaciones de las máquinas (leer, escribir, mover, aceptar, rechazar) suenan con un tono que sube con la posición del cabezal; el gestor limita repeticiones, polifonía y arranques simultáneos.
 
@@ -167,6 +186,7 @@ sombra_godot/
 │   ├── main.tscn / main.gd    escena principal, luces, AFD de pantallas, tutoriales
 │   ├── audio.gd               gestor de audio (música adaptativa y efectos)
 │   ├── vistas.gd  capa_mundo.gd  follaje.gd  capa_accion.gd  interfaz.gd  terminal_ui.gd
+│   ├── minijuegos/            minijuego.gd (base) · mj_cerradura.gd · mj_laser.gd · mj_boveda.gd
 │   ├── postproceso.gdshader   viñeta, grano, alarma, aberración
 │   └── consola/               consola F1: consola.gd (Window), vista_afd.gd, vista_mt.gd,
 │                              vista_radar.gd, vista_lenguaje.gd, tutorial.gd, tema.gd
@@ -182,6 +202,7 @@ sombra_godot/
 godot --headless --path . -s res://pruebas/pruebas_turing.gd   # 23 pruebas de las máquinas de Turing
 godot --headless --path . -s res://pruebas/pruebas.gd          # 45 pruebas del juego, autómatas, radar, audio y tutoriales
 godot --headless --path . -s res://pruebas/pruebas_lenguaje.gd # 18 pruebas del lenguaje SOMBRA
+godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd # 23 pruebas de los minijuegos de MT y de la música
 godot --headless --path . -s res://pruebas/experimento.gd      # experimento de los regresos
 ```
 

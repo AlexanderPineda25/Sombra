@@ -40,6 +40,10 @@ var informado := false             ## ya se avisó al juego del resultado de est
 var resultado := {}
 var tiempo := 0.0
 var botones := {}
+## Modo visor: superposición didáctica que repite la ejecución REAL del último
+## intento de un minijuego sobre una copia del desafío (no toca la partida).
+var modo_visor := false
+var intento_visor := {}
 
 
 func _ready() -> void:
@@ -52,7 +56,7 @@ func _ready() -> void:
 	_boton("paso", "⏭  Paso", Vector2(PANEL.position.x + 206, y), 130, _un_paso)
 	_boton("reiniciar", "↺  Reiniciar", Vector2(PANEL.position.x + 348, y), 150, _reiniciar)
 	_boton("velocidad", "Velocidad x1", Vector2(PANEL.position.x + 510, y), 150, _cambiar_velocidad)
-	_boton("salir", "✕  Salir", Vector2(PANEL.end.x - 154, y), 130, func(): juego.cerrar_terminal())
+	_boton("salir", "✕  Salir", Vector2(PANEL.end.x - 154, y), 130, _salir)
 
 
 func _boton(id: String, texto: String, pos: Vector2, ancho: float, accion: Callable) -> void:
@@ -110,6 +114,39 @@ func abrir(t) -> void:
 func cerrar() -> void:
 	visible = false
 	corriendo = false
+	modo_visor = false
+	botones["salir"].text = "✕  Salir"
+
+
+## Abre el visor técnico sobre un minijuego: `copia` es un desafío de solo
+## lectura con la entrada del intento; `intento` trae las transiciones que
+## ejecutó la máquina en el juego (para comprobar que la repetición coincide).
+func abrir_visor(copia: Desafio, intento: Dictionary) -> void:
+	modo_visor = true
+	intento_visor = intento
+	terminal = null
+	desafio = copia
+	corriendo = false
+	informado = true
+	resultado = {}
+	desafio.construir()
+	_sincronizar_cabezales(true)
+	botones["salir"].text = "✕  Volver"
+	visible = true
+
+
+func _salir() -> void:
+	if modo_visor:
+		cerrar()
+	else:
+		juego.cerrar_terminal()
+
+
+## En el visor, un intento a medias se repite solo hasta donde llegó en el juego.
+func _limite_visor() -> int:
+	if modo_visor and intento_visor.get("resultado", "") == "EN CURSO":
+		return int(intento_visor.get("pasos", 0))
+	return -1
 
 
 func _alternar_ejecucion() -> void:
@@ -137,12 +174,16 @@ func _cambiar_velocidad() -> void:
 
 
 func _editable() -> bool:
-	return desafio.maquina.pasos == 0 and not corriendo and not desafio.resuelto
+	return desafio.maquina.pasos == 0 and not corriendo and not desafio.resuelto and not modo_visor
 
 
 func _avanzar() -> void:
 	var m := desafio.maquina
 	if m.detenida():
+		return
+	var lim := _limite_visor()
+	if lim >= 0 and m.pasos >= lim:
+		corriendo = false
 		return
 	operacion.emit(m.paso())
 	if m.detenida():
@@ -213,8 +254,9 @@ func _input(e: InputEvent) -> void:
 		return
 	var fila := _fila_editable()
 	match e.keycode:
-		KEY_ESCAPE:
-			juego.cerrar_terminal()
+		KEY_ESCAPE, KEY_V:
+			if modo_visor or e.keycode == KEY_ESCAPE:
+				_salir()
 		KEY_SPACE:
 			_alternar_ejecucion()
 		KEY_N, KEY_PERIOD:
@@ -275,6 +317,9 @@ func _draw() -> void:
 	elif corriendo:
 		estado_txt = "EJECUTANDO"
 		estado_col = AMBAR
+	if modo_visor:
+		estado_txt = "VISOR · intento #%d" % int(intento_visor.get("n", 1))
+		estado_col = AMBAR
 	_pastilla(estado_txt, Vector2(PANEL.end.x - 24 - Dibujo.ancho_texto(estado_txt, 13, true) - 24, y + 4), estado_col)
 
 	# objetivo
@@ -317,6 +362,28 @@ func _draw() -> void:
 	# lección del modelo
 	y += 114
 	_parrafo("¿QUÉ ESTÁS VIENDO?  " + desafio.leccion, Vector2(x0, y), PANEL.size.x - 48, 13, SUAVE, 3)
+
+	# visor: comparación con la ejecución registrada en el minijuego
+	if modo_visor:
+		var banda_v := Rect2(PANEL.position.x + 16, PANEL.end.y - 136, PANEL.size.x - 32, 70)
+		var lim := _limite_visor()
+		var reg: String = intento_visor.get("resultado", "")
+		var pasos_reg := int(intento_visor.get("pasos", 0))
+		var txt := ""
+		var col := CIAN
+		if m.detenida() or (lim >= 0 and m.pasos >= lim):
+			var igual := m.pasos == pasos_reg and (lim >= 0 or m.resultado() == reg)
+			col = VERDE if igual else ROJO
+			txt = "Repetición: %s en %d pasos. En el minijuego la máquina dio %s en %d pasos: %s" % [
+					m.resultado() if lim < 0 else "pausa", m.pasos, reg, pasos_reg,
+					"COINCIDEN ✓" if igual else "NO COINCIDEN ✗"]
+		else:
+			txt = "VISOR TÉCNICO · repite la ejecución real del intento #%d (%s, %d pasos). Usa Paso o Ejecutar; V o Esc vuelve al minijuego sin cambiar nada." % [
+					int(intento_visor.get("n", 1)), reg, pasos_reg]
+		draw_rect(banda_v, Color(0.02, 0.05, 0.07, 1.0))
+		draw_rect(banda_v, col, false, 2.0)
+		_parrafo(txt, banda_v.position + Vector2(16, 12), banda_v.size.x - 32, 14, TEXTO, 3)
+		return
 
 	# resultado
 	if not resultado.is_empty():

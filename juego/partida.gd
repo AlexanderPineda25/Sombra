@@ -139,6 +139,15 @@ func fallar_terminal(t: Dictionary) -> void:
 	efectos.append({"tipo": "error", "pos": Mapa.centro(t["pos"])})
 
 
+## Un fallo FÍSICO en un minijuego (mal tiempo, cruzar con el láser encendido,
+## forzar un rotor): hace ruido, pero NO es un rechazo de la máquina de Turing
+## y no cuenta como intento lógico.
+func fallo_fisico(t: Dictionary, motivo: String) -> void:
+	seguridad.registrar("seguridad", "%s: fallo físico (%s). Ruido en la terminal." % [t["desafio"].titulo, motivo])
+	ruido(t["pos"], Config.RUIDO_TERMINAL * 0.75, Color(1.0, 0.7, 0.3))
+	efectos.append({"tipo": "bloqueado", "pos": Mapa.centro(t["pos"])})
+
+
 func alarma(t: Vector2i, origen := "cámara") -> void:
 	alarmas += 1
 	seguridad.registrar("alarma", "Alarma activada por %s." % origen, {"pos": Mapa.centro(t)})
