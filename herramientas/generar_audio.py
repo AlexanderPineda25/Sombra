@@ -35,24 +35,23 @@ from sintesis import (SR, aro, bajo_pulsado, bandpass, bombo, caja, campana, cue
 
 RAIZ = Path(__file__).resolve().parent.parent
 OUT = RAIZ / "assets" / "audio"
-DOCS = RAIZ / "docs"
 
 # ------------------------------------------------------------------- temas
 TEMAS = {
     "n1": {
-        "nombre": "Vestíbulo", "bpm": 92, "tonica": 50, "escala": [0, 2, 3, 5, 7, 9, 10],
+        "tonica": 50, "escala": [0, 2, 3, 5, 7, 9, 10],
         "acordes": [[50, 53, 57, 60, 64], [46, 50, 53, 57, 62], [43, 46, 50, 53, 57], [45, 49, 52, 55, 58]],
-        "instrumento": "piano", "semilla": 11, "octava_mel": 12,
+        "instrumento": "piano", "octava_mel": 12,
     },
     "n2": {
-        "nombre": "Galería", "bpm": 100, "tonica": 43, "escala": [0, 2, 3, 5, 7, 8, 11],
+        "tonica": 43, "escala": [0, 2, 3, 5, 7, 8, 11],
         "acordes": [[43, 46, 50, 57], [39, 43, 46, 50], [48, 51, 55, 58], [50, 54, 57, 60]],
-        "instrumento": "vibrafono", "semilla": 23, "octava_mel": 36,
+        "instrumento": "vibrafono", "octava_mel": 36,
     },
     "n3": {
-        "nombre": "Bóveda", "bpm": 108, "tonica": 40, "escala": [0, 1, 3, 5, 7, 8, 10],
+        "tonica": 40, "escala": [0, 1, 3, 5, 7, 8, 10],
         "acordes": [[40, 47, 52, 55], [41, 48, 53, 57], [40, 47, 52, 55], [47, 51, 54, 57]],
-        "instrumento": "campana", "semilla": 37, "octava_mel": 36,
+        "instrumento": "campana", "octava_mel": 36,
     },
 }
 COMPASES = 8
@@ -62,11 +61,12 @@ class Tema:
     def __init__(self, clave):
         self.clave = clave
         self.d = TEMAS[clave]
-        self.beat = 60.0 / self.d["bpm"]
+        _, bpm, self.semilla = gm.TEMAS_GRAMATICA[clave]
+        self.bpm = bpm
+        self.beat = 60.0 / bpm
         self.bar = self.beat * 4
         self.largo = self.bar * COMPASES
         self.n = int(round(self.largo * SR))
-        self.derivaciones = []
         self.melodia = self._componer()
 
     def buf(self):
@@ -84,9 +84,8 @@ class Tema:
         tiempos fuertes la nota se ajusta a la nota del acorde más cercana."""
         notas = []
         for f in range(4):
-            sem = self.d["semilla"] * 10 + f
-            frase, terminales, pasos = gm.melodia(sem, 2)
-            self.derivaciones.append((sem, terminales, pasos))
+            sem = self.semilla * 10 + f
+            frase, _, _ = gm.melodia(sem, 2)
             for g, ini, dur in frase:
                 t0 = f * 16 + ini
                 if g is None:
@@ -398,32 +397,12 @@ def guardar_ogg(nombre, x, pico=0.85, bucle=True, bpm=0, beats=0):
     print(f"  {nombre}.ogg  {len(x) / SR:.2f} s")
 
 
-def documentar(temas):
-    lineas = ["# Derivaciones de la gramática musical de SOMBRA", "",
-              "Generado por herramientas/generar_audio.py. Cada frase de 2 compases es una",
-              "derivación por la izquierda de la gramática estocástica (gramatica_musical.py).", ""]
-    for T in temas:
-        lineas.append(f"## Nivel {T.clave[1]} · {T.d['nombre']} ({T.d['bpm']} BPM)")
-        for sem, terminales, pasos in T.derivaciones:
-            lineas.append(f"\nsemilla {sem}:")
-            for p in pasos:
-                lineas.append(f"  ⇒ {p}")
-            lineas.append(f"  terminales: {' '.join(terminales)}")
-        lineas.append("")
-    _, historia = gm.sistema_l(iteraciones=6)
-    lineas.append("## Sistema L del ritmo de búsqueda (A → AB, B → A)")
-    for k, h in enumerate(historia):
-        lineas.append(f"  n={k}: {h}")
-    DOCS.mkdir(exist_ok=True)
-    (DOCS / "musica_derivaciones.txt").write_text("\n".join(lineas) + "\n", encoding="utf-8")
-
-
 def main():
     temas = [Tema(k) for k in TEMAS]
     print("Música:")
     for T in temas:
         beats = COMPASES * 4
-        bpm = T.d["bpm"]
+        bpm = T.bpm
         guardar_ogg(f"musica_{T.clave}_base", capa_base(T), 0.7, True, bpm, beats)
         guardar_ogg(f"musica_{T.clave}_tension", capa_tension(T), 0.6, True, bpm, beats)
         guardar_ogg(f"musica_{T.clave}_busqueda", capa_busqueda(T), 0.7, True, bpm, beats)
@@ -431,7 +410,7 @@ def main():
     guardar_ogg("remate_victoria", remate_victoria(), 0.85, False)
     guardar_ogg("remate_derrota", remate_derrota(), 0.85, False)
     guardar_ogg("ambiente_museo", ambiente(), 0.5, True)
-    documentar(temas)
+    gm.exportar_documentacion(RAIZ)
     print("Efectos:")
     todos = sfx()
     todos.update(efectos_nuevos())

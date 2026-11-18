@@ -28,6 +28,7 @@ const CapaFollaje := preload("res://escenas/follaje.gd")
 const CapaAccion := preload("res://escenas/capa_accion.gd")
 const CapaInterfaz := preload("res://escenas/interfaz.gd")
 const UITerminal := preload("res://escenas/terminal_ui.gd")
+const IntroMuseo := preload("res://escenas/intro_museo.gd")
 
 const T := Config.TILE
 ## Desafíos que se juegan como minijuego de habilidad (los demás usan el panel clásico).
@@ -40,6 +41,7 @@ var partida: Partida
 var nivel := 0
 var consola: ConsolaSeguridad
 var boton_consola_web: Button
+var intro_apertura: CanvasLayer
 var capa_tutorial: CanvasLayer
 var panel_tutorial: PanelTutorial
 var pistas_dadas := {}           ## pistas cortas ya mostradas en esta sesión
@@ -74,6 +76,8 @@ class Atajos:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 
 	func _unhandled_input(e: InputEvent) -> void:
+		if juego.intro_apertura != null:
+			return
 		if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_F1:
 			if not juego.capa_tutorial.visible:
 				juego.consola.alternar()
@@ -94,9 +98,23 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		get_tree().root.gui_embed_subwindows = true
 	_armar_escena()
-	cargar(0, true)                       # fondo animado del menú
+	cargar(nivel if saltar_menu else 0, true)  # fondo animado del menú
 	if saltar_menu:
 		disparar("enter")
+	elif i < 0 and "--sin-intro" not in args and DisplayServer.get_name() != "headless":
+		_mostrar_intro_apertura()
+
+
+func _mostrar_intro_apertura() -> void:
+	intro_apertura = CanvasLayer.new()
+	intro_apertura.layer = 6
+	add_child(intro_apertura)
+	var secuencia := IntroMuseo.new()
+	secuencia.size = Vector2(Config.ANCHO, Config.ALTO)
+	secuencia.terminada.connect(func():
+		intro_apertura.queue_free()
+		intro_apertura = null)
+	intro_apertura.add_child(secuencia)
 
 
 func _armar_escena() -> void:
@@ -428,6 +446,8 @@ func cerrar_terminal() -> void:
 
 # ---------------------------------------------------------------------- #
 func _unhandled_input(e: InputEvent) -> void:
+	if intro_apertura != null:
+		return
 	if flujo.actual == Def.TERMINAL:
 		return                              # la terminal maneja su teclado
 	if e is InputEventKey and e.pressed and not e.echo:
@@ -462,6 +482,12 @@ func _unhandled_input(e: InputEvent) -> void:
 				if ui.rect_dificultad(i).has_point(e.position):
 					Ajustes.elegir_dificultad(i)
 					return
+			for i in Niveles.cantidad():
+				if ui.rect_nivel(i).has_point(e.position):
+					nivel = i
+					saltar_menu = true
+					disparar("enter")
+					return
 		elif flujo.actual == Def.JUGANDO:
 			partida.lanzar_moneda(e.position)
 
@@ -482,6 +508,8 @@ func _direccion() -> Vector2:
 
 
 func _process(delta: float) -> void:
+	if intro_apertura != null:
+		return
 	var dt := minf(delta, 0.05)
 	tiempo += dt
 	match flujo.actual:

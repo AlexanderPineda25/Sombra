@@ -29,6 +29,7 @@ func _correr() -> void:
 		"tutoriales_completos", "ejercicio_coincide_con_la_maquina", "radar_registra_maquinas",
 		"radar_manda_al_punto", "busqueda_amplia", "oye_pasos_caminando", "oye_pasos_corriendo",
 		"agachado_no_se_oye", "energia_limita_correr", "consola_sin_pausa",
+		"gramaticas_en_consola",
 	]
 	for nombre in pruebas:
 		_actual = nombre
@@ -647,6 +648,30 @@ func test_efectos_sin_saturar() -> void:
 
 
 # --- tutoriales y consola --------------------------------------------------- #
+func test_gramaticas_en_consola() -> void:
+	var vista := VistaLenguaje.new()
+	root.add_child(vista)
+	var nivel := Niveles.compilado(0)
+	vista.editor.text = nivel.fuente
+	vista._compilar()
+	var raiz := vista.arbol_sombra.get_root()
+	comprobar(raiz != null and "nivel" in raiz.get_text(0), "el AST sale del editor compilado")
+	var mapa := raiz.get_first_child()
+	comprobar(mapa != null and mapa.get_first_child() != null, "el mapa incluye sus filas")
+	mapa.select(0)
+	vista._ir_a_nodo()
+	comprobar(vista.editor.get_caret_line() == int(mapa.get_metadata(0)) - 1)
+	var afn := AFN.desde_reglas([["T", "a(b|c)+"]])
+	var arbol := afn.ast_reglas[0]
+	comprobar(arbol["texto"] == "Concatenación" and arbol["hijos"][1]["hijos"][0]["texto"] == "Unión |")
+	vista._mostrar_er(2)
+	comprobar(vista.arbol_er.get_root() != null and vista.regla_er.text.begins_with("AST de "))
+	comprobar(vista.musica.get("ejemplos", []).size() == 12 and vista.arbol_musica.get_root().get_text(0) == "FRASE")
+	vista._mostrar_musica(12)
+	comprobar(vista.arbol_musica.get_root().get_text(0) == "A" and "A → AB" in vista.reglas_musica.text)
+	vista.free()
+
+
 func test_tutoriales_completos() -> void:
 	Ajustes.guardar_en_disco = false
 	var t := PanelTutorial.new()
@@ -662,6 +687,11 @@ func test_tutoriales_completos() -> void:
 				if pg["tipo"] == "sim":
 					var r := t.maquina.ejecutar()
 					comprobar(r in ["ACEPTA", "RECHAZA"], "%s/%d se detiene" % [id, i])
+					if i == 0:
+						comprobar(r == "ACEPTA", "%s: el ejemplo inicial funciona" % id)
+						var alternativa := PanelTutorial.crear_maquina(pg["maquina"])
+						alternativa.cargar(pg["entradas"][1])
+						comprobar(alternativa.ejecutar() == "RECHAZA", "%s: el segundo ejemplo falla" % id)
 			if pg["tipo"] == "ejercicio":
 				comprobar(t.responder(pg["correcta"]), "%s/%d la opción correcta se acepta" % [id, i])
 				t.ir(i)

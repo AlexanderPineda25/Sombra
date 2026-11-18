@@ -1,11 +1,8 @@
-# Derivaciones de la gramática musical de SOMBRA
-
-Generado por herramientas/generar_audio.py. Cada frase de 2 compases es una
-derivación por la izquierda de la gramática estocástica (gramatica_musical.py).
+# Derivaciones y árboles de la gramática musical de SOMBRA
 
 ## Nivel 1 · Vestíbulo (92 BPM)
 
-semilla 110:
+Semilla 110
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -20,9 +17,35 @@ semilla 110:
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 PASO CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 T/4
-  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          +1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+    RESPUESTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          +1/1
+        PASO
+          +1/1
+      CADENCIA
+        T/4
 
-semilla 111:
+Semilla 111
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -33,9 +56,35 @@ semilla 111:
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
-  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          +1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+      CADENCIA
+        T/4
 
-semilla 112:
+Semilla 112
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -52,9 +101,37 @@ semilla 112:
   ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 PASO CADENCIA
   ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 CADENCIA
   ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 T/4
-  terminales: 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          -1/1
+        PASO
+          +1/1
+      ECO
+        +1/4
+        r/2
+        -1/1
+        +1/1
+    RESPUESTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          -1/1
+        PASO
+          +1/1
+      CADENCIA
+        T/4
 
-semilla 113:
+Semilla 113
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -67,11 +144,35 @@ semilla 113:
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 PASO CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 T/4
-  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          -1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+    RESPUESTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          +1/1
+      CADENCIA
+        T/4
 
 ## Nivel 2 · Galería (100 BPM)
 
-semilla 230:
+Semilla 230
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -82,9 +183,35 @@ semilla 230:
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
-  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          -1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+      CADENCIA
+        T/4
 
-semilla 231:
+Semilla 231
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -95,9 +222,35 @@ semilla 231:
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
-  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          -1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+      CADENCIA
+        T/4
 
-semilla 232:
+Semilla 232
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -109,9 +262,32 @@ semilla 232:
   ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 ECO CADENCIA
   ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 CADENCIA
   ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 T/4
-  terminales: -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        PASO
+          -1/1
+        PASO
+          +1/1
+        SALTO
+          +3/2
+      ECO
+        +0/1
+        +1/1
+        +3/2
+    RESPUESTA
+      ECO
+        +0/1
+        +1/1
+        +3/2
+        +0/1
+        +1/1
+        +3/2
+      CADENCIA
+        T/4
 
-semilla 233:
+Semilla 233
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -128,11 +304,39 @@ semilla 233:
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 PASO CADENCIA
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 CADENCIA
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 T/4
-  terminales: 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          +1/1
+        PASO
+          -1/1
+      ECO
+        +1/4
+        r/2
+        +1/1
+        -1/1
+    RESPUESTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          -1/1
+        PASO
+          -1/1
+      CADENCIA
+        T/4
 
 ## Nivel 3 · Bóveda (108 BPM)
 
-semilla 370:
+Semilla 370
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -143,9 +347,35 @@ semilla 370:
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
-  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          +1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+      CADENCIA
+        T/4
 
-semilla 371:
+Semilla 371
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -158,9 +388,37 @@ semilla 371:
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 ECO CADENCIA
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 CADENCIA
   ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 T/4
-  terminales: 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        LARGA
+          0/4
+        SILENCIO
+          r/2
+        PASO
+          +1/1
+        PASO
+          -1/1
+      ECO
+        +1/4
+        r/2
+        +1/1
+        -1/1
+    RESPUESTA
+      ECO
+        +1/4
+        r/2
+        +1/1
+        -1/1
+        +1/4
+        r/2
+        +1/1
+        -1/1
+      CADENCIA
+        T/4
 
-semilla 372:
+Semilla 372
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -171,9 +429,35 @@ semilla 372:
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
-  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          -1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+        +3/1
+        +2/1
+        +3/2
+        -1/1
+      CADENCIA
+        T/4
 
-semilla 373:
+Semilla 373
   ⇒ FRASE
   ⇒ PREGUNTA RESPUESTA
   ⇒ MOTIVO ECO RESPUESTA
@@ -184,13 +468,59 @@ semilla 373:
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
   ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
-  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+Árbol de derivación
+  FRASE
+    PREGUNTA
+      MOTIVO
+        ARPEGIO
+          +2/1
+          +2/1
+          +3/2
+        PASO
+          +1/1
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+    RESPUESTA
+      ECO
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+        +3/1
+        +2/1
+        +3/2
+        +1/1
+      CADENCIA
+        T/4
 
-## Sistema L del ritmo de búsqueda (A → AB, B → A)
+## Sistema L del ritmo de búsqueda
+A → AB
+B → A
   n=0: A
   n=1: AB
   n=2: ABA
   n=3: ABAAB
   n=4: ABAABABA
-  n=5: ABAABABAABAAB
-  n=6: ABAABABAABAABABAABABA
+Árbol de reescritura
+  A
+    A
+      A
+        A
+          A
+          B
+        B
+          A
+      B
+        A
+          A
+          B
+    B
+      A
+        A
+          A
+          B
+        B
+          A

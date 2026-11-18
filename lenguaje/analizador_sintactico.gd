@@ -1,22 +1,5 @@
 ## Analizador sintáctico descendente recursivo (LL(1)) del lenguaje SOMBRA.
 ##
-## Gramática (EBNF). Cada no terminal es una función de esta clase y basta
-## mirar UN token para decidir qué regla aplicar:
-##
-##   programa   → nivel FIN
-##   nivel      → 'nivel' CADENA '{' sentencia* '}'
-##   sentencia  → mapa | guardia | terminal | radar | camara
-##   mapa       → 'mapa' '{' CADENA+ '}'
-##   guardia    → 'guardia' '{' orden+ '}'
-##   orden      → 'ir' punto
-##              | 'esperar' NUMERO
-##              | 'mirar' direccion NUMERO
-##   terminal   → 'terminal' punto IDENT
-##   radar      → 'radar' punto
-##   camara     → 'camara' punto direccion
-##   punto      → '(' NUMERO ',' NUMERO ')'
-##   direccion  → 'izquierda' | 'derecha' | 'arriba' | 'abajo'
-##
 ## Produce un árbol de sintaxis abstracta (AST) de diccionarios:
 ##   {"tipo": "nivel", "nombre": ..., "hijos": [...], "linea": n}
 ## Ante un error de sintaxis se registra "línea:col  se esperaba X" y se
@@ -26,6 +9,17 @@ extends RefCounted
 
 const SENTENCIAS := ["MAPA", "GUARDIA", "TERMINAL", "RADAR", "CAMARA"]
 const DIRECCIONES := ["IZQUIERDA", "DERECHA", "ARRIBA", "ABAJO"]
+const EBNF := """programa = nivel FIN
+nivel = 'nivel' CADENA '{' sentencia* '}'
+sentencia = mapa | guardia | terminal | radar | camara
+mapa = 'mapa' '{' CADENA+ '}'
+guardia = 'guardia' '{' orden+ '}'
+orden = 'ir' punto | 'esperar' NUMERO | 'mirar' direccion NUMERO
+terminal = 'terminal' punto IDENT
+radar = 'radar' punto
+camara = 'camara' punto direccion
+punto = '(' NUMERO ',' NUMERO ')'
+direccion = 'izquierda' | 'derecha' | 'arriba' | 'abajo'"""
 
 var tokens: Array
 var i := 0

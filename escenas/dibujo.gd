@@ -2,15 +2,17 @@
 class_name Dibujo
 extends RefCounted
 
+const FUENTE_UI := preload("res://assets/fuentes/DejaVuSans.ttf")
+
 static var _negrita: FontVariation
 
 
 static func fuente(negrita := false) -> Font:
 	if not negrita:
-		return ThemeDB.fallback_font
+		return FUENTE_UI
 	if _negrita == null:
 		_negrita = FontVariation.new()
-		_negrita.base_font = ThemeDB.fallback_font
+		_negrita.base_font = FUENTE_UI
 		_negrita.variation_embolden = 0.9
 	return _negrita
 

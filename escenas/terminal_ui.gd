@@ -53,7 +53,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var y := PANEL.end.y - 58
 	_boton("ejecutar", "▶  Ejecutar", Vector2(PANEL.position.x + 24, y), 170, _alternar_ejecucion)
-	_boton("paso", "⏭  Paso", Vector2(PANEL.position.x + 206, y), 130, _un_paso)
+	_boton("paso", "Paso", Vector2(PANEL.position.x + 206, y), 130, _un_paso)
 	_boton("reiniciar", "↺  Reiniciar", Vector2(PANEL.position.x + 348, y), 150, _reiniciar)
 	_boton("velocidad", "Velocidad x1", Vector2(PANEL.position.x + 510, y), 150, _cambiar_velocidad)
 	_boton("salir", "✕  Salir", Vector2(PANEL.end.x - 154, y), 130, _salir)
@@ -229,7 +229,7 @@ func _process(dt: float) -> void:
 	var reales := _cabezales()
 	for i in reales.size():
 		cabezal_visual[i] = lerpf(cabezal_visual[i], float(reales[i]), minf(1.0, dt * 14.0))
-	botones["ejecutar"].text = "⏸  Pausar" if corriendo else "▶  Ejecutar"
+	botones["ejecutar"].text = "Pausar" if corriendo else "▶  Ejecutar"
 	botones["paso"].disabled = desafio.maquina.detenida()
 	queue_redraw()
 

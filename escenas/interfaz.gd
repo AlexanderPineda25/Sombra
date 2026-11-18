@@ -180,6 +180,10 @@ func rect_dificultad(i: int) -> Rect2:
 	return Rect2(Config.ANCHO / 2.0 - 224 + i * 152, 415, 144, 38)
 
 
+func rect_nivel(i: int) -> Rect2:
+	return Rect2(Config.ANCHO / 2.0 - 330 + i * 225, 300, 210, 84)
+
+
 func _menu(tiempo: float) -> void:
 	_velo(0.55)
 	var cx := Config.ANCHO / 2.0
@@ -200,16 +204,17 @@ func _menu(tiempo: float) -> void:
 
 	# niveles
 	var nombres := ["El vestíbulo", "La galería", "La bóveda"]
-	var maquinas := ["MT estándar", "MT multipista", "MT multicinta + estándar"]
+	var maquinas := ["MT estándar", "MT multipista", "MT multicinta"]
+	var retos := ["Robot de la vitrina", "Cruce de láseres", "Reparto del botín"]
 	for i in Niveles.cantidad():
-		var r := Rect2(cx - 330 + i * 225, 300, 210, 84)
-		var hover := 0.5 + 0.5 * sin(tiempo * 2.0 + i)
-		draw_rect(r, Color(0.04, 0.06, 0.1, 0.88))
-		draw_rect(r, Color(Config.ACENTO, 0.45 + 0.25 * hover), false, 1.5)
+		var r := rect_nivel(i)
+		var hover := r.has_point(get_global_mouse_position())
+		draw_rect(r, Color(0.12, 0.13, 0.19, 0.94) if hover else Color(0.04, 0.06, 0.1, 0.88))
+		draw_rect(r, Color(Config.ACENTO, 1.0 if hover else 0.63), false, 1.5)
 		Dibujo.texto(self, str(i + 1), r.position + Vector2(22, 26), 34, Config.ACENTO, true, true)
 		Dibujo.texto(self, nombres[i], r.position + Vector2(44, 14), 18, Config.TEXTO, false, true)
 		Dibujo.texto(self, maquinas[i], r.position + Vector2(44, 40), 13, Color(0.45, 0.85, 1.0))
-		Dibujo.texto(self, "nivel%d.sombra" % (i + 1), r.position + Vector2(44, 58), 12, Config.TEXTO_SUAVE)
+		Dibujo.texto(self, retos[i], r.position + Vector2(44, 58), 12, Config.TEXTO_SUAVE)
 
 	Dibujo.texto(self, "Dificultad  ·  ← → o clic", Vector2(cx, 400), 15, Config.TEXTO_SUAVE, true)
 	for i in Ajustes.MODOS.size():
@@ -239,8 +244,8 @@ func _menu(tiempo: float) -> void:
 		draw_rect(Rect2(xm, 552, w, 22), Color(0.3, 0.86, 1.0, 0.5), false, 1.0)
 		Dibujo.texto(self, m, Vector2(xm + w / 2, 563), 13, Color(0.55, 0.92, 1.0), true, true, false)
 		xm += w + 8
-	if int(tiempo * 2) % 2 == 0:
-		Dibujo.texto(self, "ENTER: empezar      1 · 2 · 3: elegir nivel", Vector2(cx, 613), 26, Color.WHITE, true, true)
+	Dibujo.texto(self, "Enter para empezar   ·   1–3 o clic para elegir nivel",
+			Vector2(cx, 613), 20, Color.WHITE, true, true)
 
 
 ## Tarjeta al empezar un nivel: nombre, objetivo y los modelos que lo vigilan.

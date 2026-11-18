@@ -9,11 +9,7 @@
 ##   (a)     agrupación             [a-z_]  clase         [^"\n]  clase negada
 ##   \x      carácter literal (\n salto de línea, \t tabulador)
 ##
-## La propia ER se analiza con una gramática (descenso recursivo):
-##   union  → concat ('|' concat)*
-##   concat → repet repet*
-##   repet  → atomo ('*' | '+' | '?')*
-##   atomo  → '(' union ')' | '[' clase ']' | '\' car | car
+## La propia ER se analiza con una gramática (descenso recursivo).
 ##
 ## Cada transición lleva un CONJUNTO de caracteres (índice en `conjuntos`) o
 ## ε (-1). Así una clase como [a-z] es una sola arista y no 26.
@@ -21,12 +17,18 @@ class_name AFN
 extends RefCounted
 
 const EPSILON := -1
+const EBNF := """union = concat ('|' concat)*
+concat = repet repet*
+repet = atomo ('*' | '+' | '?')*
+atomo = '(' union ')' | '[' clase ']' | '\\' car | car"""
 
 var trans: Array = []          ## trans[q] = [[conjunto, destino], ...]
 var conjuntos: Array = []      ## {"neg": bool, "chars": String}
 var inicial := 0
 var finales := {}              ## estado -> [token, prioridad]
 var error := ""
+var ast_reglas: Array[Dictionary] = []
+var ultimo_ast: Dictionary = {}
 
 # estado del analizador de la ER
 var _er := ""
@@ -70,6 +72,7 @@ static func desde_reglas(reglas: Array) -> AFN:
 		if n.error != "":
 			n.error = "regla %s: %s" % [reglas[k][0], n.error]
 			return n
+		n.ast_reglas.append(n.ultimo_ast)
 		n.arista(n.inicial, EPSILON, frag[0])
 		n.finales[frag[1]] = [reglas[k][0], k]
 	return n
@@ -80,9 +83,10 @@ func agregar_er(er: String) -> Array:
 	_er = er
 	_i = 0
 	var frag := _union()
+	ultimo_ast = frag[2]
 	if _i < _er.length() and error == "":
 		error = "carácter inesperado '%s' en la posición %d" % [_er[_i], _i]
-	return frag
+	return frag.slice(0, 2)
 
 
 func _ver() -> String:
@@ -101,16 +105,20 @@ func _union() -> Array:
 		arista(s, EPSILON, der[0])
 		arista(izq[1], EPSILON, f)
 		arista(der[1], EPSILON, f)
-		izq = [s, f]
+		izq = [s, f, {"texto": "Unión |", "hijos": [izq[2], der[2]]}]
 	return izq
 
 
 func _concat() -> Array:
 	var frag := _repet()
+	var partes := [frag[2]]
 	while _ver() != "" and _ver() != "|" and _ver() != ")":
 		var sig := _repet()
 		arista(frag[1], EPSILON, sig[0])      # concatenación: ε del fin al inicio
-		frag = [frag[0], sig[1]]
+		frag[1] = sig[1]
+		partes.append(sig[2])
+	if partes.size() > 1:
+		frag[2] = {"texto": "Concatenación", "hijos": partes}
 	return frag
 
 
@@ -127,7 +135,7 @@ func _repet() -> Array:
 			arista(s, EPSILON, f)            # cero repeticiones
 		if op != "?":
 			arista(frag[1], EPSILON, frag[0])  # volver a repetir
-		frag = [s, f]
+		frag = [s, f, {"texto": "Repetición " + op, "hijos": [frag[2]]}]
 	return frag
 
 
@@ -135,7 +143,8 @@ func _atomo() -> Array:
 	var c := _ver()
 	if c == "":
 		error = "la expresión termina antes de tiempo"
-		return [nuevo_estado(), nuevo_estado()]
+		return [nuevo_estado(), nuevo_estado(), {"texto": "Operando incompleto"}]
+	var inicio := _i
 	_i += 1
 	if c == "(":
 		var frag := _union()
@@ -172,7 +181,8 @@ func _atomo() -> Array:
 	var s := nuevo_estado()
 	var f := nuevo_estado()
 	arista(s, conjuntos.size() - 1, f)
-	return [s, f]
+	var nombre := "Clase " if c == "[" else "Literal "
+	return [s, f, {"texto": nombre + _er.substr(inicio, _i - inicio)}]
 
 
 ## Un carácter, con escapes \n, \t y \x (literal).

@@ -53,7 +53,7 @@ nivel "La bóveda" {
 | Análisis semántico | Filas de 30×20, borde de pared, una P y una X, cada `T`/`C` del mapa declarada, desafíos que existen, puntos caminables y rutas conectadas (BFS). | `lenguaje/compilador.gd` |
 | Generación e interpretación | Datos del nivel; los guardias **interpretan** su programa de patrulla (`esperar`, `mirar`) mientras su AFD está en PATRULLA. | `juego/niveles.gd`, `juego/guardia.gd` |
 
-En **F1 › Lenguaje SOMBRA** se ve el código del nivel con resaltado hecho por el propio analizador léxico, los tokens, el árbol sintáctico, los errores y cómo se construyó el AFD del léxico. Se puede **editar el programa, compilarlo y reiniciar el nivel con él** (por ejemplo, cambiar las patrullas) sin tocar el archivo.
+En **F1 › Lenguaje SOMBRA** (o **Consola** en la versión web) se ve el código del nivel, los tokens, los errores y el AFD del léxico. **Gramática** muestra las reglas EBNF junto al AST desplegable del editor. Selecciona un nodo para saltar a su línea. **Léxico** muestra la gramática de las expresiones regulares y el AST de cada token. **Música** muestra las producciones y el árbol de derivación de cada frase, o las reglas y el árbol de reescritura del ritmo. Puedes **editar el programa, compilarlo y reiniciar el nivel con él** sin tocar el archivo.
 
 ## Cómo jugar
 
@@ -80,6 +80,8 @@ Los tres perfiles incluyen `niveles/*.sombra`, que el juego lee al cargar los ma
 En itch.io, usa una página de tipo **HTML Game**. Marca el ZIP web como jugable en el navegador y etiqueta los dos ZIP de escritorio con su plataforma. Prueba las tres compilaciones en la vista previa del borrador antes de publicarlo.
 
 ## Controles
+
+Al iniciar, una secuencia de 5 segundos muestra la entrada al museo. Puedes saltarla con **Esc**, **Enter** o clic. Usa `godot --path . -- --sin-intro` para abrir directamente el menú. Puedes elegir nivel con **1–3** o con clic en su tarjeta.
 
 | Tecla | Acción |
 |---|---|
@@ -216,7 +218,7 @@ sombra_godot/
 
 ```bash
 godot --headless --path . -s res://pruebas/pruebas_turing.gd   # 25 pruebas de las máquinas de Turing
-godot --headless --path . -s res://pruebas/pruebas.gd          # 47 pruebas del juego, autómatas, radar, audio y tutoriales
+godot --headless --path . -s res://pruebas/pruebas.gd          # 48 pruebas del juego, autómatas, radar, audio y consola
 godot --headless --path . -s res://pruebas/pruebas_lenguaje.gd # 18 pruebas del lenguaje SOMBRA
 godot --headless --path . -s res://pruebas/pruebas_minijuegos.gd # 15 pruebas de los minijuegos de MT y de la música
 godot --headless --path . -s res://pruebas/experimento.gd      # experimento de los regresos

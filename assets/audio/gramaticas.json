@@ -1,0 +1,1334 @@
+{
+  "melodia": "FRASE → PREGUNTA RESPUESTA (1)\nPREGUNTA → MOTIVO ECO (1)\nRESPUESTA → MOTIVO CADENCIA (0.6) | ECO CADENCIA (0.4)\nMOTIVO → PASO PASO SALTO (0.4) | LARGA SILENCIO PASO PASO (0.3) | ARPEGIO PASO (0.3)\nPASO → +1/1 (0.5) | -1/1 (0.5)\nSALTO → +3/2 (0.35) | -2/2 (0.4) | +4/2 (0.25)\nLARGA → 0/4 (1)\nSILENCIO → r/2 (1)\nARPEGIO → +2/1 +2/1 +3/2 (1)\nCADENCIA → T/4 (1)\nECO → motivo anterior transpuesto un grado",
+  "reglas_ritmo": "A → AB\nB → A",
+  "ejemplos": [
+    {
+      "nombre": "Vestíbulo · frase 1",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 T/4"
+    },
+    {
+      "nombre": "Vestíbulo · frase 2",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4"
+    },
+    {
+      "nombre": "Vestíbulo · frase 3",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+1/4"
+                  },
+                  {
+                    "texto": "r/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 T/4"
+    },
+    {
+      "nombre": "Vestíbulo · frase 4",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 T/4"
+    },
+    {
+      "nombre": "Galería · frase 1",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4"
+    },
+    {
+      "nombre": "Galería · frase 2",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4"
+    },
+    {
+      "nombre": "Galería · frase 3",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SALTO",
+                    "hijos": [
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+0/1"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+0/1"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+0/1"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "-1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 T/4"
+    },
+    {
+      "nombre": "Galería · frase 4",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+1/4"
+                  },
+                  {
+                    "texto": "r/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 T/4"
+    },
+    {
+      "nombre": "Bóveda · frase 1",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4"
+    },
+    {
+      "nombre": "Bóveda · frase 2",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "LARGA",
+                    "hijos": [
+                      {
+                        "texto": "0/4"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "SILENCIO",
+                    "hijos": [
+                      {
+                        "texto": "r/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+1/4"
+                  },
+                  {
+                    "texto": "r/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+1/4"
+                  },
+                  {
+                    "texto": "r/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "-1/1"
+                  },
+                  {
+                    "texto": "+1/4"
+                  },
+                  {
+                    "texto": "r/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 T/4"
+    },
+    {
+      "nombre": "Bóveda · frase 3",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "-1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "-1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4"
+    },
+    {
+      "nombre": "Bóveda · frase 4",
+      "arbol": {
+        "texto": "FRASE",
+        "hijos": [
+          {
+            "texto": "PREGUNTA",
+            "hijos": [
+              {
+                "texto": "MOTIVO",
+                "hijos": [
+                  {
+                    "texto": "ARPEGIO",
+                    "hijos": [
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+2/1"
+                      },
+                      {
+                        "texto": "+3/2"
+                      }
+                    ]
+                  },
+                  {
+                    "texto": "PASO",
+                    "hijos": [
+                      {
+                        "texto": "+1/1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "texto": "RESPUESTA",
+            "hijos": [
+              {
+                "texto": "ECO",
+                "hijos": [
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  },
+                  {
+                    "texto": "+3/1"
+                  },
+                  {
+                    "texto": "+2/1"
+                  },
+                  {
+                    "texto": "+3/2"
+                  },
+                  {
+                    "texto": "+1/1"
+                  }
+                ]
+              },
+              {
+                "texto": "CADENCIA",
+                "hijos": [
+                  {
+                    "texto": "T/4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "salida": "+2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4"
+    }
+  ],
+  "ritmo": {
+    "nombre": "Ritmo de búsqueda · 4 iteraciones",
+    "salida": "ABAABABA",
+    "arbol": {
+      "texto": "A",
+      "hijos": [
+        {
+          "texto": "A",
+          "hijos": [
+            {
+              "texto": "A",
+              "hijos": [
+                {
+                  "texto": "A",
+                  "hijos": [
+                    {
+                      "texto": "A"
+                    },
+                    {
+                      "texto": "B"
+                    }
+                  ]
+                },
+                {
+                  "texto": "B",
+                  "hijos": [
+                    {
+                      "texto": "A"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "texto": "B",
+              "hijos": [
+                {
+                  "texto": "A",
+                  "hijos": [
+                    {
+                      "texto": "A"
+                    },
+                    {
+                      "texto": "B"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "texto": "B",
+          "hijos": [
+            {
+              "texto": "A",
+              "hijos": [
+                {
+                  "texto": "A",
+                  "hijos": [
+                    {
+                      "texto": "A"
+                    },
+                    {
+                      "texto": "B"
+                    }
+                  ]
+                },
+                {
+                  "texto": "B",
+                  "hijos": [
+                    {
+                      "texto": "A"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

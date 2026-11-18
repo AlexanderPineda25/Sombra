@@ -24,7 +24,16 @@
    Fibonacci ABAABABAABAAB...; A = golpe, B = silencio. Es un ritmo que
    nunca se repite exactamente, ideal para la percusión de la búsqueda.
 """
+import json
+from pathlib import Path
 import random
+
+TEMAS_GRAMATICA = {
+    "n1": ("Vestíbulo", 92, 11),
+    "n2": ("Galería", 100, 23),
+    "n3": ("Bóveda", 108, 37),
+}
+REGLAS_L = {"A": "AB", "B": "A"}
 
 REGLAS = {
     "FRASE": [(["PREGUNTA", "RESPUESTA"], 1.0)],
@@ -42,16 +51,24 @@ REGLAS = {
 
 
 def derivar(semilla, inicial="FRASE"):
-    """Derivación por la izquierda. Devuelve (terminales, formas sentenciales).
+    """Devuelve (terminales, formas sentenciales)."""
+    terminales, pasos, _ = derivar_con_arbol(semilla, inicial)
+    return terminales, pasos
+
+
+def derivar_con_arbol(semilla, inicial="FRASE"):
+    """Devuelve los terminales, las formas sentenciales y el árbol real.
 
     Como siempre se expande el no terminal de más a la izquierda, cuando se
     llega a un ECO el MOTIVO anterior ya está completo: ECO copia esos
     terminales un grado más arriba."""
     r = random.Random(semilla)
-    forma = [inicial]
-    pasos = [" ".join(forma)]
+    raiz = {"texto": inicial}
+    frontera = [raiz]
+    pasos = [inicial]
     inicio_motivo = 0
     while True:
+        forma = [nodo["texto"] for nodo in frontera]
         i = next((k for k, s in enumerate(forma) if s in REGLAS or s == "ECO"), -1)
         if i < 0:
             break
@@ -69,9 +86,11 @@ def derivar(semilla, inicial="FRASE"):
                 if x <= 0:
                     break
             cuerpo = list(cuerpo)
-        forma = forma[:i] + cuerpo + forma[i + 1:]
-        pasos.append(" ".join(forma))
-    return forma, pasos
+        hijos = [{"texto": simbolo} for simbolo in cuerpo]
+        frontera[i]["hijos"] = hijos
+        frontera[i:i + 1] = hijos
+        pasos.append(" ".join(nodo["texto"] for nodo in frontera))
+    return forma, pasos, raiz
 
 
 def _transponer(t, d):
@@ -119,7 +138,7 @@ def melodia(semilla, compases=4):
 
 def sistema_l(axioma="A", reglas=None, iteraciones=6):
     """Reescritura paralela de un sistema L (todas las letras a la vez)."""
-    reglas = reglas or {"A": "AB", "B": "A"}
+    reglas = reglas or REGLAS_L
     palabra = axioma
     historia = [palabra]
     for _ in range(iteraciones):
@@ -133,3 +152,67 @@ def ritmo_fibonacci(golpes=16, desfase=0):
     palabra, _ = sistema_l(iteraciones=8)
     trozo = palabra[desfase:desfase + golpes]
     return [c == "A" for c in trozo]
+
+
+def arbol_ritmo(iteraciones=4):
+    """Expande todos los símbolos de la frontera en paralelo."""
+    raiz = {"texto": "A"}
+    frontera = [raiz]
+    for _ in range(iteraciones):
+        siguiente = []
+        for nodo in frontera:
+            hijos = [{"texto": c} for c in REGLAS_L[nodo["texto"]]]
+            nodo["hijos"] = hijos
+            siguiente.extend(hijos)
+        frontera = siguiente
+    return raiz
+
+
+def _lineas_arbol(nodo, prefijo=""):
+    yield prefijo + nodo["texto"]
+    for hijo in nodo.get("hijos", []):
+        yield from _lineas_arbol(hijo, prefijo + "  ")
+
+
+def exportar_documentacion(raiz):
+    """Regenera la vista del juego y el informe sin sintetizar audio."""
+    reglas_melodia = [
+        f"{nt} → " + " | ".join(f"{' '.join(cuerpo)} ({peso:g})" for cuerpo, peso in opciones)
+        for nt, opciones in REGLAS.items()
+    ]
+    reglas_melodia.append("ECO → motivo anterior transpuesto un grado")
+    reglas_l = "\n".join(f"{nt} → {cuerpo}" for nt, cuerpo in REGLAS_L.items())
+    ejemplos = []
+    informe = ["# Derivaciones y árboles de la gramática musical de SOMBRA", ""]
+    for i, (nombre, bpm, semilla) in enumerate(TEMAS_GRAMATICA.values(), start=1):
+        informe.append(f"## Nivel {i} · {nombre} ({bpm} BPM)")
+        for frase in range(4):
+            sem = semilla * 10 + frase
+            term, pasos, arbol = derivar_con_arbol(sem)
+            ejemplos.append({
+                "nombre": f"{nombre} · frase {frase + 1}",
+                "arbol": arbol,
+                "salida": " ".join(term),
+            })
+            informe.extend([f"\nSemilla {sem}", *("  ⇒ " + p for p in pasos), "Árbol de derivación"])
+            informe.extend(_lineas_arbol(arbol, "  "))
+        informe.append("")
+    ritmo = arbol_ritmo()
+    palabra, historia = sistema_l(iteraciones=4)
+    informe.extend(["## Sistema L del ritmo de búsqueda", reglas_l])
+    informe.extend(f"  n={i}: {h}" for i, h in enumerate(historia))
+    informe.extend(["Árbol de reescritura", *_lineas_arbol(ritmo, "  ")])
+    datos = {
+        "melodia": "\n".join(reglas_melodia),
+        "reglas_ritmo": reglas_l,
+        "ejemplos": ejemplos,
+        "ritmo": {"nombre": "Ritmo de búsqueda · 4 iteraciones", "salida": palabra, "arbol": ritmo},
+    }
+    (raiz / "assets" / "audio" / "gramaticas.json").write_text(
+        json.dumps(datos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    (raiz / "docs" / "musica_derivaciones.txt").write_text("\n".join(informe) + "\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    exportar_documentacion(Path(__file__).resolve().parent.parent)

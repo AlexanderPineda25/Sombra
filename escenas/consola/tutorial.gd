@@ -17,6 +17,10 @@ const TUTORIALES := {
 	"estandar": {
 		"titulo": "Máquina de Turing estándar",
 		"paginas": [
+			{"tipo": "sim", "titulo": "El robot de la vitrina",
+			"texto": "En Fácil, lleva cada gema al hueco con el mismo número. Pulsa [b]Paso[/b] y sigue al cabezal: la máquina recuerda una gema, cruza hasta la cerradura y comprueba la pareja.",
+			"maquina": "clave_vitrina", "entrada": "RE#RE", "entradas": ["RE#RE", "RE#ER"],
+			"etiquetas": ["Parejas correctas", "Gemas cambiadas"]},
 			{"tipo": "sim", "titulo": "Cinta y cabezal",
 			"texto": "Una cinta infinita y un cabezal. En cada paso: [b]lee[/b] un símbolo, [b]escribe[/b] otro, se [b]mueve[/b] (L, R o S) y cambia de [b]estado[/b].",
 			"maquina": "incrementador", "entrada": "1011", "formula": "δ(q, a) = (q', b, M)"},
@@ -33,26 +37,27 @@ const TUTORIALES := {
 			"maquina": "anbn", "entrada": "abb",
 			"pregunta": "¿Acepta la palabra «abb»?", "opciones": ["Sí", "No"], "correcta": 1,
 			"explica": "Sobra una b: al final queda una b sin pareja y la máquina rechaza. En el museo, la central de alarmas usa esta máquina."},
-			{"tipo": "sim", "titulo": "En el museo: la cerradura de gemas",
-			"texto": "La vitrina muestra gemas; tú escribes la clave tras el [b]#[/b]. La máquina va en zigzag: marca una gema, la [b]recuerda en su estado[/b], cruza el # y revisa la clave. Regla de la rueda: R→Z→E→A→R.",
-			"maquina": "clave_rueda", "entrada": "RZEA#ZEAR", "entradas": ["RZEA#ZEAR", "RZEA#ZEAA"],
-			"etiquetas": ["Clave correcta", "Clave con un error"]},
-			{"tipo": "ejercicio", "titulo": "Resuelve la cerradura",
-			"texto": "Rueda del museo: Rubí → Zafiro → Esmeralda → Ámbar → Rubí. La vitrina muestra «E A».",
-			"pregunta": "¿Qué clave escribes tras el #?", "opciones": ["A R", "E A", "Z E"], "correcta": 0,
-			"explica": "Cada gema avanza una posición: E→A y A→R (la rueda vuelve a empezar)."},
+			{"tipo": "ejercicio", "titulo": "Recuerda la pareja",
+			"texto": "En Fácil, la vitrina tiene una esmeralda en el 1 y un ámbar en el 2.",
+			"pregunta": "¿Qué colocas en el hueco 1?", "opciones": ["Esmeralda", "Ámbar", "Rubí"], "correcta": 0,
+			"explica": "La pieza del número 1 va al hueco con ese mismo número."},
 		],
 	},
 	"multicinta": {
 		"titulo": "Máquina multicinta",
 		"paginas": [
+			{"tipo": "sim", "titulo": "El reparto del botín",
+			"texto": "Pulsa [b]Paso[/b]. Cuando llega una joya a la bolsa izquierda, el cabezal de la derecha se queda quieto. Prueba también qué ocurre si mandas el rubí a la bolsa equivocada.",
+			"maquina": "reparto", "entrada": ["R<Z>Fv", "R", "Z"], "nombres": ["Cinta del botín", "Bolsa izquierda", "Bolsa derecha"],
+			"entradas": [["R<Z>Fv", "R", "Z"], ["R>Z>Fv", "", "RZ"]],
+			"etiquetas": ["Reparto correcto", "Rubí en la bolsa equivocada"]},
 			{"tipo": "sim", "titulo": "Varias cintas, varios cabezales",
 			"texto": "k cintas, cada una con [b]su propio cabezal[/b]. δ lee k símbolos a la vez y da k escrituras y [b]k movimientos independientes[/b].",
-			"maquina": "suma_multicinta", "entrada": ["101", "011", ""], "nombres": ["A", "B", "A+B"],
+			"maquina": "suma_multicinta", "entrada": ["101", "011", "1000"], "nombres": ["A", "B", "Resultado"],
 			"formula": "δ(q, a₁,…,aₖ) = (q', b₁,…,bₖ, M₁,…,Mₖ)"},
 			{"tipo": "ejercicio", "titulo": "Movimientos",
 			"texto": "Observa los cabezales: cada uno avanza por su cuenta.",
-			"maquina": "suma_multicinta", "entrada": ["101", "011", ""], "nombres": ["A", "B", "A+B"], "previos": 4,
+			"maquina": "suma_multicinta", "entrada": ["101", "011", "1000"], "nombres": ["A", "B", "Resultado"], "previos": 4,
 			"pregunta": "Con 3 cintas, ¿cuántos movimientos indica cada transición?", "opciones": ["1", "3", "6"],
 			"correcta": 1, "explica": "Uno por cabezal: (M₁, M₂, M₃)."},
 			{"tipo": "sim", "titulo": "En el museo: el radar",
@@ -70,8 +75,10 @@ const TUTORIALES := {
 		"titulo": "Máquina multipista",
 		"paginas": [
 			{"tipo": "sim", "titulo": "Una cinta, varias pistas",
-			"texto": "Cada casilla guarda una [b]tupla[/b] (una fila por pista). Hay [b]un solo cabezal[/b]: lee la columna entera y hace un único movimiento.",
-			"maquina": "xor_multipista", "entrada": ["1010", "0110", "1100"], "nombres": ["Láser", "Máscara", "Objetivo"],
+			"texto": "En el pasillo, un solo cabezal comprueba tres datos a la vez. Si el haz está encendido, la máscara debe coincidir. Pulsa [b]Paso[/b] para ver qué decide con cada haz.",
+			"maquina": "cruce", "entrada": ["RZE", "AZE", "011"], "nombres": ["Haz", "Máscara", "Encendido"],
+			"entradas": [["RZE", "AZE", "011"], ["RZE", "AZE", "111"]],
+			"etiquetas": ["Primer haz apagado", "Primer haz encendido"],
 			"formula": "δ(q, (a₁,…,aₖ)) = (q', (b₁,…,bₖ), M)"},
 			{"tipo": "ejercicio", "titulo": "Cabezales",
 			"texto": "El analizador del radar usa 4 pistas.",
@@ -256,10 +263,11 @@ func _cargar(pg: Dictionary, entrada) -> void:
 static func crear_maquina(nombre: String) -> MaquinaTuring:
 	match nombre:
 		"incrementador": return ProgramasTuring.incrementador()
-		"clave_rueda": return ProgramasTuring.verificador_clave(Desafio.RUEDA, false)
+		"clave_vitrina": return ProgramasTuring.verificador_clave(Desafio.IDENTIDAD, false)
 		"anbn": return ProgramasTuring.anbn()
 		"suma_multicinta": return ProgramasTuring.suma_multicinta()
-		"xor_multipista": return ProgramasTuring.xor_multipista()
+		"cruce": return ProgramasTuring.cruce_multipista()
+		"reparto": return ProgramasTuring.reparto_multicinta()
 		"correlador_sensores": return ProgramasTuring.correlador_sensores()
 		"analizador_radar": return ProgramasTuring.analizador_radar()
 	return null
@@ -317,7 +325,7 @@ func _process(dt: float) -> void:
 			if maquina.detenida():
 				corriendo = false
 	if _ejecutar and is_instance_valid(_ejecutar):
-		_ejecutar.text = "⏸ Pausar" if corriendo else "▶ Ejecutar"
+		_ejecutar.text = "Pausar" if corriendo else "▶ Ejecutar"
 
 
 func _unhandled_key_input(e: InputEvent) -> void:
