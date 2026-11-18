@@ -1,0 +1,196 @@
+# Derivaciones de la gramática musical de SOMBRA
+
+Generado por herramientas/generar_audio.py. Cada frase de 2 compases es una
+derivación por la izquierda de la gramática estocástica (gramatica_musical.py).
+
+## Nivel 1 · Vestíbulo (92 BPM)
+
+semilla 110:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 MOTIVO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 LARGA SILENCIO PASO PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 SILENCIO PASO PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 PASO PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 T/4
+  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 0/4 r/2 +1/1 +1/1 T/4
+
+semilla 111:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+
+semilla 112:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ LARGA SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 -1/1 PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 -1/1 +1/1 ECO RESPUESTA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 RESPUESTA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 MOTIVO CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 LARGA SILENCIO PASO PASO CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 SILENCIO PASO PASO CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 PASO PASO CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 PASO CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 CADENCIA
+  ⇒ 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 T/4
+  terminales: 0/4 r/2 -1/1 +1/1 +1/4 r/2 -1/1 +1/1 0/4 r/2 -1/1 +1/1 T/4
+
+semilla 113:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 MOTIVO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ARPEGIO PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 PASO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 T/4
+  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +2/1 +2/1 +3/2 +1/1 T/4
+
+## Nivel 2 · Galería (100 BPM)
+
+semilla 230:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+
+semilla 231:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+
+semilla 232:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ PASO PASO SALTO ECO RESPUESTA
+  ⇒ -1/1 PASO SALTO ECO RESPUESTA
+  ⇒ -1/1 +1/1 SALTO ECO RESPUESTA
+  ⇒ -1/1 +1/1 +3/2 ECO RESPUESTA
+  ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 RESPUESTA
+  ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 ECO CADENCIA
+  ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 CADENCIA
+  ⇒ -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 T/4
+  terminales: -1/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 +0/1 +1/1 +3/2 T/4
+
+semilla 233:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ LARGA SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 MOTIVO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 LARGA SILENCIO PASO PASO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 SILENCIO PASO PASO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 PASO PASO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 PASO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 T/4
+  terminales: 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 0/4 r/2 -1/1 -1/1 T/4
+
+## Nivel 3 · Bóveda (108 BPM)
+
+semilla 370:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+
+semilla 371:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ LARGA SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 SILENCIO PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 PASO PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 PASO ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 ECO RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 RESPUESTA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 ECO CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 CADENCIA
+  ⇒ 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 T/4
+  terminales: 0/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 +1/4 r/2 +1/1 -1/1 T/4
+
+semilla 372:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+  terminales: +2/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 +3/1 +2/1 +3/2 -1/1 T/4
+
+semilla 373:
+  ⇒ FRASE
+  ⇒ PREGUNTA RESPUESTA
+  ⇒ MOTIVO ECO RESPUESTA
+  ⇒ ARPEGIO PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 PASO ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 ECO RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 RESPUESTA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 ECO CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 CADENCIA
+  ⇒ +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+  terminales: +2/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 +3/1 +2/1 +3/2 +1/1 T/4
+
+## Sistema L del ritmo de búsqueda (A → AB, B → A)
+  n=0: A
+  n=1: AB
+  n=2: ABA
+  n=3: ABAAB
+  n=4: ABAABABA
+  n=5: ABAABABAABAAB
+  n=6: ABAABABAABAABABAABABA

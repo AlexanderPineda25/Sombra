@@ -1,0 +1,11 @@
+digraph "pila_regreso" {
+  rankdir=LR; bgcolor=white;
+  node [shape=circle, fontname="Helvetica", style=filled, fillcolor="#E1F5EE", color="#0F6E56"];
+  edge [fontname="Helvetica", color="#5F5E5A", fontsize=11];
+  inicio [shape=point, width=0.08];
+  IDA; VUELTA [shape=doublecircle];
+  inicio -> IDA;
+  IDA -> IDA [label="m, X / mX\nm, opuesto(m) / λ"];
+  IDA -> VUELTA [label="λ, X / X\n(se acaba la búsqueda)"];
+  VUELTA -> VUELTA [label="λ, m / λ   (salida: opuesto(m))\nλ, Z0 / λ   (pila vacía: acepta)"];
+}

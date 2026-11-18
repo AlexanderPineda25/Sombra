@@ -1,0 +1,31 @@
+digraph "Flujo del juego" {
+  rankdir=LR; bgcolor=white;
+  node [shape=circle, fontname="Helvetica", style=filled, fillcolor="#EEEDFE", color="#534AB7"];
+  edge [fontname="Helvetica", color="#5F5E5A"];
+  inicio [shape=point, width=0.08];
+  "MENU" [shape=circle];
+  "JUGANDO" [shape=circle];
+  "PAUSA" [shape=circle];
+  "DERROTA" [shape=circle];
+  "VICTORIA" [shape=circle];
+  "FIN" [shape=doublecircle];
+  inicio -> "MENU";
+  "MENU" -> "JUGANDO" [label="enter"];
+  "MENU" -> "MENU" [label="esc, atrapado, escapo, final"];
+  "JUGANDO" -> "JUGANDO" [label="enter"];
+  "JUGANDO" -> "PAUSA" [label="esc"];
+  "JUGANDO" -> "DERROTA" [label="atrapado"];
+  "JUGANDO" -> "VICTORIA" [label="escapo"];
+  "JUGANDO" -> "FIN" [label="final"];
+  "PAUSA" -> "MENU" [label="enter"];
+  "PAUSA" -> "JUGANDO" [label="esc"];
+  "PAUSA" -> "PAUSA" [label="atrapado, escapo, final"];
+  "DERROTA" -> "JUGANDO" [label="enter"];
+  "DERROTA" -> "MENU" [label="esc"];
+  "DERROTA" -> "DERROTA" [label="atrapado, escapo, final"];
+  "VICTORIA" -> "JUGANDO" [label="enter"];
+  "VICTORIA" -> "MENU" [label="esc"];
+  "VICTORIA" -> "VICTORIA" [label="atrapado, escapo, final"];
+  "FIN" -> "MENU" [label="enter, esc"];
+  "FIN" -> "FIN" [label="atrapado, escapo, final"];
+}

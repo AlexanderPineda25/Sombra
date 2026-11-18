@@ -1,0 +1,18 @@
+digraph "Cámara" {
+  rankdir=LR; bgcolor=white;
+  node [shape=circle, fontname="Helvetica", style=filled, fillcolor="#EEEDFE", color="#534AB7"];
+  edge [fontname="Helvetica", color="#5F5E5A"];
+  inicio [shape=point, width=0.08];
+  "GIRO_IZQ" [shape=circle];
+  "GIRO_DER" [shape=circle];
+  "ALARMA" [shape=doublecircle];
+  inicio -> "GIRO_IZQ";
+  "GIRO_IZQ" -> "GIRO_DER" [label="f"];
+  "GIRO_IZQ" -> "ALARMA" [label="v"];
+  "GIRO_IZQ" -> "GIRO_IZQ" [label="t"];
+  "GIRO_DER" -> "GIRO_IZQ" [label="f"];
+  "GIRO_DER" -> "ALARMA" [label="v"];
+  "GIRO_DER" -> "GIRO_DER" [label="t"];
+  "ALARMA" -> "ALARMA" [label="f, v"];
+  "ALARMA" -> "GIRO_IZQ" [label="t"];
+}

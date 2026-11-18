@@ -1,0 +1,29 @@
+digraph "Guardia (borrador) (mínimo)" {
+  rankdir=LR; bgcolor=white;
+  node [shape=circle, fontname="Helvetica", style=filled, fillcolor="#EEEDFE", color="#534AB7"];
+  edge [fontname="Helvetica", color="#5F5E5A"];
+  inicio [shape=point, width=0.08];
+  "PATRULLA" [shape=circle];
+  "ALERTA" [shape=circle];
+  "PERSECUCION" [shape=doublecircle];
+  "BUSQUEDA" [shape=circle];
+  "REGRESO" [shape=circle];
+  inicio -> "PATRULLA";
+  "PATRULLA" -> "PERSECUCION" [label="v"];
+  "PATRULLA" -> "ALERTA" [label="r"];
+  "PATRULLA" -> "PATRULLA" [label="p, l, t"];
+  "ALERTA" -> "PERSECUCION" [label="v"];
+  "ALERTA" -> "ALERTA" [label="r, p"];
+  "ALERTA" -> "BUSQUEDA" [label="l"];
+  "ALERTA" -> "REGRESO" [label="t"];
+  "PERSECUCION" -> "PERSECUCION" [label="v, r, l, t"];
+  "PERSECUCION" -> "BUSQUEDA" [label="p"];
+  "BUSQUEDA" -> "PERSECUCION" [label="v"];
+  "BUSQUEDA" -> "ALERTA" [label="r"];
+  "BUSQUEDA" -> "BUSQUEDA" [label="p, l"];
+  "BUSQUEDA" -> "REGRESO" [label="t"];
+  "REGRESO" -> "PERSECUCION" [label="v"];
+  "REGRESO" -> "ALERTA" [label="r"];
+  "REGRESO" -> "REGRESO" [label="p, t"];
+  "REGRESO" -> "PATRULLA" [label="l"];
+}

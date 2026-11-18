@@ -1,0 +1,34 @@
+digraph "Guardia (borrador)" {
+  rankdir=LR; bgcolor=white;
+  node [shape=circle, fontname="Helvetica", style=filled, fillcolor="#EEEDFE", color="#534AB7"];
+  edge [fontname="Helvetica", color="#5F5E5A"];
+  inicio [shape=point, width=0.08];
+  "PATRULLA" [shape=circle];
+  "INVESTIGAR" [shape=circle];
+  "REVISAR" [shape=circle];
+  "PERSECUCION" [shape=doublecircle];
+  "BUSQUEDA" [shape=circle];
+  "REGRESO" [shape=circle];
+  inicio -> "PATRULLA";
+  "PATRULLA" -> "PERSECUCION" [label="v"];
+  "PATRULLA" -> "INVESTIGAR" [label="r"];
+  "PATRULLA" -> "PATRULLA" [label="p, l, t"];
+  "INVESTIGAR" -> "PERSECUCION" [label="v"];
+  "INVESTIGAR" -> "INVESTIGAR" [label="r, p"];
+  "INVESTIGAR" -> "BUSQUEDA" [label="l"];
+  "INVESTIGAR" -> "REGRESO" [label="t"];
+  "REVISAR" -> "PERSECUCION" [label="v"];
+  "REVISAR" -> "REVISAR" [label="r, p"];
+  "REVISAR" -> "BUSQUEDA" [label="l"];
+  "REVISAR" -> "REGRESO" [label="t"];
+  "PERSECUCION" -> "PERSECUCION" [label="v, r, l, t"];
+  "PERSECUCION" -> "BUSQUEDA" [label="p"];
+  "BUSQUEDA" -> "PERSECUCION" [label="v"];
+  "BUSQUEDA" -> "REVISAR" [label="r"];
+  "BUSQUEDA" -> "BUSQUEDA" [label="p, l"];
+  "BUSQUEDA" -> "REGRESO" [label="t"];
+  "REGRESO" -> "PERSECUCION" [label="v"];
+  "REGRESO" -> "INVESTIGAR" [label="r"];
+  "REGRESO" -> "REGRESO" [label="p, t"];
+  "REGRESO" -> "PATRULLA" [label="l"];
+}
