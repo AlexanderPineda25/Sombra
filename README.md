@@ -55,7 +55,11 @@ nivel "La bóveda" {
 
 En **F1 › Lenguaje SOMBRA** (o **Consola** en la versión web) se ve el código del nivel, los tokens, los errores y el AFD del léxico. **Gramática** muestra las reglas EBNF junto al AST desplegable del editor. Selecciona un nodo para saltar a su línea. **Léxico** muestra la gramática de las expresiones regulares y el AST de cada token. **Música** muestra las producciones y el árbol de derivación de cada frase, o las reglas y el árbol de reescritura del ritmo. Puedes **editar el programa, compilarlo y reiniciar el nivel con él** sin tocar el archivo.
 
-## Cómo jugar
+## Descargar y jugar
+
+El juego está publicado en **[itch.io](https://steveelcrack.itch.io/sombra-robo-en-el-museo)** con descargables para **Windows** y **Linux**: descarga el ZIP de tu plataforma, extráelo y ejecuta `SOMBRA.exe` o `SOMBRA.x86_64`.
+
+## Cómo jugar desde el código
 
 1. Instala [Godot 4.7](https://godotengine.org/download) (versión estándar).
 2. Abre Godot → **Importar** → elige `project.godot`.
@@ -234,6 +238,23 @@ python3 herramientas/generar_arte.py
 python3 herramientas/generar_audio.py
 ```
 
-## Autor
+## Documentación del proyecto
 
-Luis Agudelo — Lenguajes de Programación, Universidad de los Llanos.
+| Documento | Contenido |
+|---|---|
+| [`Articulo_IEEE_SOMBRA.docx`](Articulo_IEEE_SOMBRA.docx) · [PDF](Articulo_IEEE_SOMBRA.pdf) | Informe en formato IEEE: problema, marco teórico (de expresiones regulares a máquinas de Turing, gramáticas estocásticas y sistemas L), metodología Scrum en 5 semanas, arquitectura e interfaz, resultados, discusión, conclusiones y 44 referencias. |
+| Sustentación (Canva) | Presentación de 15 minutos: equipo, problema, respaldo teórico, metodología, solución y video, código con los conceptos del curso, conclusiones y referencias. |
+
+## Metodología
+
+Desarrollado con **Scrum** en cinco semanas (planeación y cuatro sprints de una semana más el cierre), con un backlog de 30 historias de usuario. El código se versionó en **GitHub** con commits continuos a `main`, y antes de subir cambios se ejecutan las pruebas automáticas en modo headless. El juego se exporta con Godot 4.7.2 y se publica en itch.io.
+
+## Equipo
+
+Programa de Ingeniería de Sistemas · Universidad de los Llanos · curso Lenguajes de Programación.
+
+| Integrante | Rol Scrum | Trabajo principal |
+|---|---|---|
+| Steve Alexander Pineda Rincon | Líder del proyecto y Product Owner | visión, priorización del backlog y aprobación de cada incremento |
+| Andrew Mateo Ortiz Mora | Scrum Master y desarrollador | integración en Godot, interfaz, niveles, arte, audio y despliegue |
+| Luis Alejandro Agudelo Moreno | Desarrollador | modelado formal, máquinas de Turing, compilador y pruebas |
